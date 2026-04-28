@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickKaam | Connecting Skilled Workers with Opportunities</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.12);
+            --glass-hover: rgba(255, 255, 255, 0.18);
+            --blur: blur(12px);
+            --accent: #ff9933;
+            --accent-dark: #f3c095;
+            --white: #ffffff;
+            --dark: #1a1a1a;
+            --error: #ff4444;
+            --success: #28a745;
+            --overlay: rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+            background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), 
+                        url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 999;
+            border-bottom: 1px solid rgba(255, 153, 51, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .login-btn {
+            background: var(--accent);
+            border: none;
+            color: var(--dark);
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(255, 153, 51, 0.4);
+        }
+
+        .login-btn:hover {
+            background: var(--accent-dark);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 153, 51, 0.6);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 120px 20px 60px;
+            position: relative;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeInUp 1s forwards;
+            animation-delay: 0.2s;
+        }
+
+        .project-title {
+            font-size: 5.5rem;
+            color: var(--white);
+            text-transform: uppercase;
+            letter-spacing: 14px;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 4px 6px 20px rgba(0,0,0,0.8);
+            line-height: 1.1;
+        }
+
+        .project-title span {
+            color: var(--accent);
+            text-shadow: 4px 6px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .youtube-tutorial-compact {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 0, 0, 0.15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 12px 24px;
+            border-radius: 30px;
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
+        }
+
+        .youtube-tutorial-compact:hover {
+            background: rgba(255, 0, 0, 0.3);
+            border-color: rgba(255, 0, 0, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
+            color: white;
+        }
+
+        .youtube-tutorial-compact svg {
+            width: 22px;
+            height: 22px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .youtube-tutorial-compact .yt-icon {
+            color: #ff0000;
+        }
+
+        .youtube-tutorial-compact .tutorial-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1.3;
+        }
+
+        .youtube-tutorial-compact .tutorial-main {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .youtube-tutorial-compact .tutorial-sub {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .tagline {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 30px;
+            letter-spacing: 3px;
+            font-weight: 300;
+        }
+
+        .description-overlay {
+            max-width: 750px;
+            margin: 0 auto 50px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 30px 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .description-overlay h3 {
+            color: var(--accent);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .description-overlay p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .description-overlay ul {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .description-overlay li {
+            color: rgba(255, 255, 255, 0.85);
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .description-overlay li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* Main Options Container */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 35px;
+            margin-bottom: 80px;
+            opacity: 0;
+            animation: fadeInUp 1s forwards;
+            animation-delay: 0.5s;
+        }
+
+        .option-card {
+            background: var(--glass);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 45px 35px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+        }
+
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.6s;
+        }
+
+        .option-card:hover::before {
+            left: 100%;
+        }
+
+        .option-card:hover {
+            background: var(--accent);
+            transform: translateY(-12px) scale(1.02);
+            color: #000;
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.5);
+            border-color: var(--accent);
+        }
+
+        .option-card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .option-card:hover .option-card-icon {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+
+        .option-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .option-card p {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .services-list {
+            list-style: none;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .services-list li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .services-list li::before {
+            content: '►';
+            position: absolute;
+            left: 0;
+            color: currentColor;
+            font-size: 0.8rem;
+        }
+
+        .option-card:hover .services-list li::before {
+            color: var(--dark);
+        }
+
+        /* ============================================================================ */
+        /* UNIFIED MODAL STYLES (From First Code) */
+        /* ============================================================================ */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(8px);
+            overflow-y: auto;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.98), rgba(40, 40, 40, 0.98));
+            border: 2px solid rgba(255, 153, 51, 0.3);
+            border-radius: 30px;
+            width: 90%;
+            max-width: 480px;
+            color: white;
+            padding: 40px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+            animation: popIn 0.3s ease-out;
+            position: relative;
+            margin: 20px auto;
+        }
+
+        .modal-content.wide {
+            max-width: 800px;
+            padding: 60px;
+        }
+
+        .close {
+            color: var(--accent);
+            position: absolute;
+            right: 25px;
+            top: 25px;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .modal-header h2 {
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modal h2 {
+            color: var(--accent);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .modal p {
+            line-height: 1.9;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .modal h3 {
+            color: var(--accent);
+            margin-top: 35px;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid rgba(255, 153, 51, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent);
+            border: none;
+            border-radius: 10px;
+            color: var(--dark);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: scale(1.02);
+        }
+        
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 2px solid rgba(255, 153, 51, 0.3);
+            border-radius: 10px;
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 153, 51, 0.1);
+        }
+
+        /* Selection Cards (Worker vs User) */
+        .login-select-option {
+            background: var(--glass);
+            border: 2px solid rgba(255, 153, 51, 0.3);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .login-select-option:hover {
+            background: rgba(255, 153, 51, 0.2);
+            transform: translateX(5px);
+        }
+
+        .login-select-icon {
+            font-size: 2.5rem;
+        }
+
+        /* Utilities */
+        .error-msg {
+            color: var(--error);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .success-msg {
+            color: var(--success);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .show {
+            display: block;
+        }
+
+        .forgot-link {
+            text-align: center;
+            margin-top: 15px;
+            display: block;
+            color: var(--accent);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            cursor: pointer;
+        }
+
+        .contact-info {
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 5px solid var(--accent);
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-info:hover {
+            background: rgba(255, 215, 0, 0.15);
+            transform: translateX(5px);
+        }
+
+        .contact-info a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .contact-info a:hover {
+            color: #fff;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* Help & Support Button - Bottom Fixed */
+        .help-support-fixed {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 998;
+            background: var(--accent);
+            border: none;
+            color: var(--dark);
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 25px rgba(255, 153, 51, 0.5);
+        }
+
+        .help-support-fixed:hover {
+            background: var(--accent-dark);
+            color: var(--white);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 153, 51, 0.7);
+        }
+
+        .help-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(15px);
+            padding: 50px 20px;
+            margin-top: 100px;
+            border-top: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+
+        .footer-left {
+            color: white;
+        }
+
+        .footer-left h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .footer-left p {
+            opacity: 0.85;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .social-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--glass);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            font-size: 1.4rem;
+            transition: all 0.4s ease;
+        }
+
+        .social-icon:hover {
+            background: var(--accent);
+            color: #000;
+            transform: translateY(-8px) scale(1.15);
+            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.5);
+            border-color: var(--accent);
+        }
+
+        .social-icon.youtube:hover {
+            background: #ff0000;
+            border-color: #ff0000;
+            color: white;
+            box-shadow: 0 15px 35px rgba(255, 0, 0, 0.5);
+        }
+
+        .developer-credit {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding-top: 35px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            margin-top: 35px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .developer-credit span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .project-title {
+                font-size: 4rem;
+                letter-spacing: 10px;
+            }
+            
+            .options-container {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 15px 20px;
+            }
+
+            .logo {
+                font-size: 1.4rem;
+            }
+
+            .login-btn {
+                padding: 10px 20px;
+                font-size: 0.85rem;
+            }
+
+            .project-title {
+                font-size: 3rem;
+                letter-spacing: 6px;
+            }
+
+            .youtube-tutorial-compact {
+                font-size: 0.75rem;
+                padding: 8px 16px;
+            }
+
+            .youtube-tutorial-compact svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .tagline {
+                font-size: 1.1rem;
+                letter-spacing: 2px;
+            }
+
+            .description-overlay {
+                padding: 25px 30px;
+            }
+
+            .description-overlay h3 {
+                font-size: 1.1rem;
+            }
+
+            .description-overlay p,
+            .description-overlay li {
+                font-size: 0.9rem;
+            }
+
+            .options-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .option-card {
+                padding: 35px 25px;
+                min-height: 180px;
+            }
+
+            .modal-content {
+                padding: 25px;
+                width: 95%;
+                margin: 10% auto;
+            }
+
+            .modal-content.wide {
+                padding: 40px 30px;
+            }
+
+            .login-select-option {
+                padding: 15px;
+            }
+
+            .help-support-fixed {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                font-size: 0.85rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 30px;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .project-title {
+                font-size: 2.2rem;
+                letter-spacing: 4px;
+            }
+
+            .youtube-tutorial-compact {
+                font-size: 0.7rem;
+                padding: 6px 14px;
+            }
+
+            .youtube-tutorial-compact svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .tagline {
+                font-size: 0.95rem;
+            }
+
+            .description-overlay {
+                padding: 20px 25px;
+            }
+
+            .modal-content {
+                padding: 30px 20px;
+            }
+
+            .help-support-fixed {
+                padding: 10px 16px;
+                font-size: 0.8rem;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Selection Color */
+        ::selection {
+            background: var(--accent);
+            color: var(--dark);
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-dark);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="logo">Quick<span>Kaam</span></div>
+        <div class="nav-buttons">
+            <button class="login-btn" onclick="openLoginSelection()">
+                <span>🔐</span>
+                Login
+            </button>
+        </div>
+    </nav>
+
+    <!-- Fixed Help & Support Button (Bottom Right) -->
+    <button class="help-support-fixed" onclick="openModal('helpModal')">
+        <span class="help-icon">❓</span>
+        <span data-lang-key="home-help-btn">Help & Support</span>
+    </button>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="project-title">Quick<span>Kaam</span></h1>
+            
+            <a href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank" class="youtube-tutorial-compact" title="Watch Complete Tutorial on YouTube">
+                <svg class="yt-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                <div class="tutorial-text">
+                    <span class="tutorial-main">📺 Watch Tutorial</span>
+                    <span class="tutorial-sub">Learn how to use QuickKaam</span>
+                </div>
+            </a>
+
+            <p class="tagline" data-lang-key="home-subtitle">Connecting Skilled Workers with Opportunities</p>
+
+            <div class="description-overlay">
+                <h3 data-lang-key="home-tagline">🚀 Your Gateway to Quick Work Solutions</h3>
+                <p><strong>QuickKaam</strong> <span data-lang-key="home-about-text">is India's premier platform bridging the gap between skilled professionals and those seeking their expertise.</span></p>
+
+                <ul>
+                    <li data-lang-key="home-for-workers"><strong>For Workers:</strong> Showcase your skills, find relevant jobs, and grow your career</li>
+                    <li data-lang-key="home-for-users"><strong>For Users:</strong> Access verified professionals instantly for any service you need</li>
+                    <li data-lang-key="home-services-covered"><strong>Services Covered:</strong> Construction, repairs, teaching, technical work, household services & more</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Options -->
+        <div class="container">
+            <div class="options-container">
+                <a href="createAccount.html" class="option-card">
+                    <div class="option-card-icon">👤</div>
+                    <h3 data-lang-key="home-create-account">Create Account</h3>
+                    <p data-lang-key="home-get-started">Join QuickKaam today and get started</p>
+                </a>
+
+                <div class="option-card" onclick="openModal('servicesModal')">
+                    <div class="option-card-icon">⚡</div>
+                    <h3 data-lang-key="home-services-title">Our Services</h3>
+                    <p data-lang-key="home-services-subtitle">Discover what makes QuickKaam special</p>
+                    <ul class="services-list">
+                        <li data-lang-key="home-service-1">Direct Worker-User Communication</li>
+                        <li data-lang-key="home-service-2">Quick Job & Worker Search</li>
+                        <li data-lang-key="home-service-3">Secure Login & Registration</li>
+                        <li data-lang-key="home-service-4">Location-Based Matching</li>
+                    </ul>
+                </div>
+
+                <div class="option-card" onclick="openModal('aboutModal')">
+                    <div class="option-card-icon">ℹ️</div>
+                    <h3 data-lang-key="home-about-title">About Us</h3>
+                    <p data-lang-key="home-about-desc">Learn about our mission and vision</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================================ -->
+    <!-- LOGIN MODALS SECTION (From First Code) -->
+    <!-- ============================================================================ -->
+
+    <!-- 1. LOGIN TYPE SELECTION MODAL -->
+    <div id="loginSelectionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <div class="modal-header">
+                <h2 data-lang-key="login-select-type">🔐 Select Login Type</h2>
+            </div>
+
+            <div class="login-select-option" onclick="openWorkerLogin()">
+                <div class="login-select-icon">👷</div>
+                <div>
+                    <h3 data-lang-key="login-worker-option">Worker Login</h3>
+                    <p style="opacity: 0.8; font-size: 0.9rem;" data-lang-key="login-worker-desc">Login with Mobile Number</p>
+                </div>
+            </div>
+
+            <div class="login-select-option" onclick="openUserLogin()">
+                <div class="login-select-icon">👤</div>
+                <div>
+                    <h3 data-lang-key="login-user-option">User Login</h3>
+                    <p style="opacity: 0.8; font-size: 0.9rem;" data-lang-key="login-user-desc">Login with Email Address</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================== WORKER FLOW ========================== -->
+
+    <!-- 2. WORKER LOGIN MODAL -->
+    <div id="w_loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <div class="modal-header"><h2 data-lang-key="login-title-worker">👷 Worker Login</h2></div>
+
+            <div class="form-group">
+                <label data-lang-key="label-mobile">Mobile Number</label>
+                <input type="tel" id="w_loginMobile" data-lang-ph="ph-login-mobile" placeholder="Enter 10-digit Mobile" maxlength="10">
+                <div class="error-msg" id="w_loginMobileError"></div>
+            </div>
+
+            <div class="form-group">
+                <label data-lang-key="btn-login">Password</label>
+                <input type="password" id="w_loginPassword" data-lang-ph="ph-login-password" placeholder="Enter Password">
+                <span class="toggle-password" onclick="togglePass('w_loginPassword')">👁️</span>
+                <div class="error-msg" id="w_loginPassError"></div>
+            </div>
+
+            <a class="forgot-link" onclick="openWorkerForgot()" data-lang-key="forgot-password">Forgot Password?</a>
+            <button class="btn-primary" onclick="w_handleLogin()" data-lang-key="login-btn-worker">Login as Worker</button>
+            <button class="btn-secondary" onclick="openLoginSelection()" data-lang-key="btn-back">← Back</button>
+        </div>
+    </div>
+
+    <!-- 3. WORKER FORGOT PASS - SELECTION -->
+    <div id="w_forgotSelectModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <div class="modal-header"><h2 data-lang-key="recovery-title">🔑 Recovery Method</h2></div>
+            <p style="text-align:center; margin-bottom:20px; opacity:0.8;" data-lang-key="recovery-subtitle">How do you want to reset?</p>
+
+            <div class="login-select-option" onclick="openWorkerSecurityQ()">
+                <div><h4 data-lang-key="recovery-questions">🔐 Security Questions</h4><p data-lang-key="recovery-questions-desc">Answer your secret questions</p></div>
+            </div>
+            <div class="login-select-option" onclick="openWorkerOTP()">
+                <div><h4 data-lang-key="recovery-otp">📱 OTP via SMS</h4><p data-lang-key="recovery-otp-desc">Get code on registered mobile</p></div>
+            </div>
+            <button class="btn-secondary" onclick="openWorkerLogin()" data-lang-key="btn-back">← Back to Login</button>
+        </div>
+    </div>
+
+    <!-- 4. WORKER FORGOT - SECURITY QUESTIONS -->
+    <div id="w_securityQModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <div class="modal-header"><h2 data-lang-key="verify-title">Verify Identity</h2></div>
+            <div class="form-group">
+                <label data-lang-key="label-mobile">Registered Mobile</label>
+                <input type="tel" id="w_sq_mobile" maxlength="10">
+            </div>
+            <div class="form-group">
+                <label data-lang-key="label-friend-name">Childhood Friend's Name</label>
+                <input type="text" id="w_sq_friend">
+            </div>
+            <div class="form-group">
+                <label data-lang-key="label-school-name">Primary School Name</label>
+                <input type="text" id="w_sq_school">
+            </div>
+            <div class="form-group">
+                <label data-lang-key="label-birthplace">Birthplace</label>
+                <input type="text" id="w_sq_birth">
+            </div>
+            <button class="btn-primary" onclick="w_verifySQ()" data-lang-key="verify-title">Verify Answers</button>
+            <button class="btn-secondary" onclick="openWorkerForgot()" data-lang-key="btn-back">← Back</button>
+        </div>
+    </div>
+
+    <!-- 5. WORKER FORGOT - OTP -->
+    <div id="w_otpModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <div class="modal-header"><h2 data-lang-key="recovery-otp">OTP Recovery</h2></div>
+            <div class="form-group">
+                <label data-lang-key="label-mobile">Registered Mobile</label>
+                <input type="tel" id="w_otp_mobile" maxlength="10">
+            </div>
+            <button class="btn-primary" id="w_sendOtpBtn" onclick="w_sendOTP()" data-lang-key="btn-send-otp">Send OTP</button>
+
+            <div id="w_otpSection" style="display:none; margin-top:20px;">
+                <div class="form-group">
+                    <label data-lang-key="ph-otp">Enter 6-digit OTP</label>
+                    <input type="text" id="w_otp_code" maxlength="6">
+                </div>
+                <button class="btn-primary" onclick="w_verifyOTP()" data-lang-key="btn-verify-otp">Verify OTP</button>
+            </div>
+            <button class="btn-secondary" onclick="openWorkerForgot()" data-lang-key="btn-back">← Back</button>
+        </div>
+    </div>
+
+    <!-- 6. WORKER RESET PASSWORD -->
+    <div id="w_resetModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <div class="modal-header"><h2 data-lang-key="reset-password-title">Reset Password</h2></div>
+            <input type="hidden" id="w_reset_mobile_hidden">
+            <div class="form-group">
+                <label data-lang-key="label-password">New Password</label>
+                <input type="password" id="w_newPass">
+            </div>
+            <div class="form-group">
+                <label data-lang-key="label-confirm-password">Confirm Password</label>
+                <input type="password" id="w_confPass">
+            </div>
+            <button class="btn-primary" onclick="w_resetPassword()" data-lang-key="reset-password-title">Update Password</button>
+        </div>
+    </div>
+
+    <!-- ========================== USER FLOW ========================== -->
+
+    <!-- 7. USER LOGIN MODAL -->
+    <div id="u_loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <div class="modal-header"><h2 data-lang-key="login-title-user">👤 User Login</h2></div>
+
+            <div class="form-group">
+                <label data-lang-key="label-email">Email Address</label>
+                <input type="email" id="u_loginEmail" data-lang-ph="ph-login-email" placeholder="Enter Email">
+                <div class="error-msg" id="u_loginEmailError"></div>
+            </div>
+
+            <div class="form-group">
+                <label data-lang-key="label-password">Password</label>
+                <input type="password" id="u_loginPassword" data-lang-ph="ph-login-password" placeholder="Enter Password">
+                <span class="toggle-password" onclick="togglePass('u_loginPassword')">👁️</span>
+                <div class="error-msg" id="u_loginPassError"></div>
+            </div>
+
+            <a class="forgot-link" onclick="openUserForgot()" data-lang-key="forgot-password">Forgot Password?</a>
+            <button class="btn-primary" onclick="u_handleLogin()" data-lang-key="login-btn-user">Login as User</button>
+            <button class="btn-secondary" onclick="openLoginSelection()" data-lang-key="btn-back">← Back</button>
+        </div>
+    </div>
+
+    <!-- 8. USER FORGOT PASS - SELECTION -->
+    <div id="u_forgotSelectModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <div class="modal-header"><h2>🔑 Recovery Method</h2></div>
+            
+            <div class="login-select-option" onclick="openUserSecurityQ()">
+                <div><h4>🔐 Security Questions</h4><p>Answer your secret questions</p></div>
+            </div>
+            <div class="login-select-option" onclick="openUserEmail()">
+                <div><h4>📧 Email Link</h4><p>Get reset link via email</p></div>
+            </div>
+            <button class="btn-secondary" onclick="openUserLogin()">← Back to Login</button>
+        </div>
+    </div>
+
+    <!-- 9. USER FORGOT - SECURITY QUESTIONS -->
+    <div id="u_securityQModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <div class="modal-header"><h2>Verify Identity</h2></div>
+            <div id="u_sq_step1">
+                <div class="form-group">
+                    <label>Registered Email</label>
+                    <input type="email" id="u_sq_email">
+                    <div class="error-msg" id="u_sq_emailError"></div>
+                </div>
+                <button class="btn-primary" onclick="u_verifyEmailForSQ()">Next</button>
+            </div>
+            
+            <div id="u_sq_step2" style="display:none;">
+                <div class="form-group">
+                    <label>Pet's Name?</label>
+                    <input type="text" id="u_sq_pet">
+                </div>
+                <div class="form-group">
+                    <label>Favorite Teacher?</label>
+                    <input type="text" id="u_sq_teacher">
+                </div>
+                <button class="btn-primary" onclick="u_verifySQ()">Verify Answers</button>
+            </div>
+            <button class="btn-secondary" onclick="openUserForgot()">← Back</button>
+        </div>
+    </div>
+
+    <!-- 10. USER FORGOT - EMAIL LINK -->
+    <div id="u_emailLinkModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <div class="modal-header"><h2>Email Recovery</h2></div>
+            <div class="form-group">
+                <label>Registered Email</label>
+                <input type="email" id="u_rec_email">
+            </div>
+            <button class="btn-primary" onclick="u_sendResetLink()">Send Reset Link</button>
+            <button class="btn-secondary" onclick="openUserForgot()">← Back</button>
+        </div>
+    </div>
+
+    <!-- 11. USER RESET PASSWORD -->
+    <div id="u_resetModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <div class="modal-header"><h2>Reset Password</h2></div>
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="u_newPass">
+            </div>
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" id="u_confPass">
+            </div>
+            <button class="btn-primary" onclick="u_resetPassword()">Update Password</button>
+        </div>
+    </div>
+
+    <!-- ============================================================================ -->
+    <!-- INFORMATION MODALS (Services, Help, About) -->
+    <!-- ============================================================================ -->
+
+    <!-- Services Modal -->
+    <div id="servicesModal" class="modal">
+        <div class="modal-content wide">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <h2>⚡ Our Services</h2>
+            
+            <p><strong style="color: var(--accent);">QuickKaam</strong> offers a comprehensive suite of features designed to make finding work and workers effortless, secure, and efficient.</p>
+
+            <h3>🔗 Direct Communication Between Workers and Users</h3>
+            <p>Connect directly with workers via phone or in-app messaging. No middlemen, no delays—just instant, transparent communication that helps you get the job done faster.</p>
+
+            <h3>⚡ Easy and Fast Way to Find Jobs or Workers</h3>
+            <p>Our intelligent matching system ensures that workers find relevant opportunities and users discover the right professionals within minutes. Simply post your requirement or browse available jobs.</p>
+
+            <h3>🔒 Secure and Simple Login & Account Creation</h3>
+            <p>Your data security is our priority. Create your account in seconds with our streamlined registration process. All user information is encrypted and protected with industry-standard security measures.</p>
+
+            <h3>📍 Location-Based Worker Search for Quick Results</h3>
+            <p>Find workers in your city, neighborhood, or area with our advanced location-based search. Get matched with nearby professionals who can reach you quickly, saving time and transportation costs.</p>
+
+            <h3>✅ Additional Features</h3>
+            <ul style="list-style: none; padding-left: 0; margin-top: 15px;">
+                <li style="padding: 8px 0; padding-left: 25px; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--accent); font-weight: bold;">✓</span>
+                    Verified worker profiles with ratings and reviews
+                </li>
+                <li style="padding: 8px 0; padding-left: 25px; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--accent); font-weight: bold;">✓</span>
+                    Service request ticketing system for organized workflow
+                </li>
+                <li style="padding: 8px 0; padding-left: 25px; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--accent); font-weight: bold;">✓</span>
+                    Real-time updates on job status and availability
+                </li>
+                <li style="padding: 8px 0; padding-left: 25px; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--accent); font-weight: bold;">✓</span>
+                    Multi-category service coverage across all industries
+                </li>
+                <li style="padding: 8px 0; padding-left: 25px; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--accent); font-weight: bold;">✓</span>
+                    24/7 platform access from anywhere
+                </li>
+            </ul>
+
+            <p style="margin-top: 30px; text-align: center; color: var(--accent); font-weight: 600; font-size: 1.1rem;">Experience the future of work connections with QuickKaam! 🚀</p>
+        </div>
+    </div>
+
+    <!-- Help & Support Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content wide">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <h2>❓ Help & Support</h2>
+            <p>We're here to help you! If you have any questions, concerns, or need assistance with our platform, please don't hesitate to reach out.</p>
+            
+            <div class="contact-info">
+                <h3 style="color: var(--accent); margin-bottom: 15px;">📧 Email Support</h3>
+                <p>For all inquiries, please contact us at:</p>
+                <p><a href="mailto:quickkaam26@gmail.com?subject=QuickKaam Support Request&body=Hello QuickKaam Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A">skillindiaa2026@gmail.com</a></p>
+            </div>
+
+            <div class="contact-info">
+                <h3 style="color: var(--accent); margin-bottom: 15px;">📱 Connect on Social Media</h3>
+                <p>Follow us on Instagram for updates and announcements:</p>
+                <p><a href="https://www.instagram.com/quickkaam_?igsh=MWQ4ejdqOXRzM2VuMQ==_" target="_blank">@quickkaam</a></p>
+            </div>
+
+            <p style="margin-top: 30px; opacity: 0.9;"><strong>Response Time:</strong> Our support team typically responds within 24-48 hours during business days. For urgent matters, please mention "URGENT" in your subject line.</p>
+
+            <p style="margin-top: 20px; opacity: 0.9;"><strong>Common Topics:</strong> Account issues, worker verification, payment queries, technical support, partnership opportunities, and general feedback.</p>
+        </div>
+    </div>
+
+    <!-- About Us Modal -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content wide">
+            <span class="close" onclick="closeAllModals()">&times;</span>
+            <h2>ℹ️ About QuickKaam</h2>
+            
+            <p><strong style="color: var(--accent);">QuickKaam</strong> is a revolutionary platform designed to bridge the gap between skilled workers and users seeking their services. Our mission is to empower the workforce across India by providing a seamless digital platform that connects talented professionals with those who need their expertise.</p>
+
+            <h3>🎯 Our Mission</h3>
+            <p>We aim to create a transparent, efficient, and accessible ecosystem where workers can showcase their skills, build their reputation, and users can easily find reliable professionals for various services ranging from construction, repairs, teaching, technical services, household work, and much more.</p>
+
+            <h3>🌟 Our Vision</h3>
+            <p>To become India's most trusted platform for skill-based employment, empowering millions of workers and transforming how services are discovered and delivered across the nation.</p>
+
+            <h3>💡 Why Choose QuickKaam?</h3>
+            <ul style="list-style: none; padding-left: 0; margin-top: 15px;">
+                <li style="padding: 10px 0; padding-left: 30px; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--accent); font-weight: bold; font-size: 1.2rem;">✓</span>
+                    <strong>Trusted Platform:</strong> Verified worker profiles with genuine reviews
+                </li>
+                <li style="padding: 10px 0; padding-left: 30px; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--accent); font-weight: bold; font-size: 1.2rem;">✓</span>
+                    <strong>Wide Coverage:</strong> Services across 500+ job categories
+                </li>
+                <li style="padding: 10px 0; padding-left: 30px; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--accent); font-weight: bold; font-size: 1.2rem;">✓</span>
+                    <strong>Local Focus:</strong> Find workers in your immediate vicinity
+                </li>
+                <li style="padding: 10px 0; padding-left: 30px; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--accent); font-weight: bold; font-size: 1.2rem;">✓</span>
+                    <strong>Fair Pricing:</strong> Transparent rates, no hidden charges
+                </li>
+                <li style="padding: 10px 0; padding-left: 30px; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--accent); font-weight: bold; font-size: 1.2rem;">✓</span>
+                    <strong>24/7 Access:</strong> Post jobs or search workers anytime
+                </li>
+            </ul>
+
+            <h3>👨‍💻 About the Developer</h3>
+            <div class="contact-info">
+                <p><strong>Developed by:</strong> Vibhav Kumar Maurya</p>
+                <p style="margin-top: 15px; opacity: 0.95; line-height: 1.8;">A passionate developer and innovator committed to leveraging technology to solve real-world problems and contribute to India's digital transformation. QuickKaam represents a vision to digitize and organize the skilled workforce sector, making it more accessible, efficient, and empowering for everyone involved.</p>
+                <p style="margin-top: 15px; opacity: 0.95;">With a deep understanding of both technology and the challenges faced by India's workforce, this platform was built to create meaningful impact in millions of lives.</p>
+            </div>
+
+            <p style="margin-top: 35px; text-align: center; color: var(--accent); font-weight: 700; font-size: 1.2rem;">Together, let's build a skilled and empowered India! 🇮🇳</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-left">
+                <h3>QuickKaam</h3>
+                <p>Connecting skilled workers with opportunities nationwide</p>
+                <p style="margin-top: 15px;">Empowering India's workforce, one connection at a time.</p>
+                <p style="margin-top: 15px; font-size: 0.9rem;">© 2026 QuickKaam. All rights reserved.</p>
+            </div>
+            
+            <div class="social-links">
+                <a href="mailto:skillindiaa2026@gmail.com?subject=QuickKaam Inquiry&body=Hello QuickKaam Team,%0D%0A%0D%0A" class="social-icon" title="Email Us">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                </a>
+                
+                <a href="https://instagram.com/quickkaam26" target="_blank" class="social-icon" title="Follow on Instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
+                </a>
+
+                <a href="https://x.com" target="_blank" class="social-icon" title="Follow on X (Twitter)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                </a>
+
+                <a href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank" class="social-icon youtube" title="Watch on YouTube">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <div class="developer-credit">
+            Crafted with passion and dedication by <span>Vibhav Kumar</span><br>
+            Building Digital India | Empowering Through Technology
+        </div>
+    </footer>
+
+    <script>
+        // ==========================================
+        // UTILITIES
+        // ==========================================
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
+            document.body.style.overflow = 'auto';
+        }
+
+        function openModal(id) {
+            closeAllModals();
+            document.getElementById(id).classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function togglePass(id) {
+            const el = document.getElementById(id);
+            el.type = el.type === 'password' ? 'text' : 'password';
+        }
+
+        // ==========================================
+        // MAIN SELECTION
+        // ==========================================
+        function openLoginSelection() {
+            openModal('loginSelectionModal');
+        }
+
+        function openWorkerLogin() {
+            openModal('w_loginModal');
+        }
+
+        function openUserLogin() {
+            openModal('u_loginModal');
+        }
+
+        // ==========================================
+        // WORKER LOGIC
+        // ==========================================
+        
+        async function w_handleLogin() {
+            const contact = document.getElementById('w_loginMobile').value;
+            const password = document.getElementById('w_loginPassword').value;
+            const err = document.getElementById('w_loginMobileError');
+            
+            if(contact.length !== 10) {
+                err.textContent = "Enter 10 digit mobile";
+                err.classList.add('show');
+                return;
+            }
+
+            try {
+                const res = await fetch('http://localhost:3000/worker-login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contact, password })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    localStorage.setItem('loggedInWorker', JSON.stringify(data.worker));
+                    window.location.href = 'workerDashboard.html';
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch(e) {
+                alert('Server Error');
+            }
+        }
+
+        function openWorkerForgot() {
+            openModal('w_forgotSelectModal');
+        }
+
+        function openWorkerSecurityQ() {
+            openModal('w_securityQModal');
+        }
+
+        function openWorkerOTP() {
+            openModal('w_otpModal');
+        }
+
+        async function w_verifySQ() {
+            const data = {
+                contact: document.getElementById('w_sq_mobile').value,
+                friend_name: document.getElementById('w_sq_friend').value,
+                school_name: document.getElementById('w_sq_school').value,
+                birthplace: document.getElementById('w_sq_birth').value
+            };
+
+            try {
+                const res = await fetch('http://localhost:3000/verify-security-questions', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                if(res.ok) {
+                    document.getElementById('w_reset_mobile_hidden').value = data.contact;
+                    openModal('w_resetModal');
+                } else {
+                    alert('❌ Verification Failed');
+                }
+            } catch(e) {
+                alert('Server Error');
+            }
+        }
+
+        async function w_sendOTP() {
+            const mobile = document.getElementById('w_otp_mobile').value;
+            if(mobile.length !== 10) {
+                alert('Invalid Mobile');
+                return;
+            }
+            
+            try {
+                const res = await fetch('http://localhost:3000/send-otp', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({contact: mobile})
+                });
+                if(res.ok) {
+                    alert('OTP Sent!');
+                    document.getElementById('w_otpSection').style.display = 'block';
+                    document.getElementById('w_sendOtpBtn').style.display = 'none';
+                } else {
+                    alert('Failed to send OTP');
+                }
+            } catch(e) {
+                alert('Server Error');
+            }
+        }
+
+        async function w_verifyOTP() {
+            const mobile = document.getElementById('w_otp_mobile').value;
+            const otp = document.getElementById('w_otp_code').value;
+            
+            try {
+                const res = await fetch('http://localhost:3000/verify-otp', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({contact: mobile, otp})
+                });
+                if(res.ok) {
+                    document.getElementById('w_reset_mobile_hidden').value = mobile;
+                    openModal('w_resetModal');
+                } else {
+                    alert('Invalid OTP');
+                }
+            } catch(e) {
+                alert('Server Error');
+            }
+        }
+
+        async function w_resetPassword() {
+            const mobile = document.getElementById('w_reset_mobile_hidden').value;
+            const newPass = document.getElementById('w_newPass').value;
+            const confPass = document.getElementById('w_confPass').value;
+
+            if(newPass.length < 6) {
+                alert('Password too short');
+                return;
+            }
+            if(newPass !== confPass) {
+                alert('Passwords mismatch');
+                return;
+            }
+
+            try {
+                const res = await fetch('http://localhost:3000/reset-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({contact: mobile, new_password: newPass})
+                });
+                if(res.ok) {
+                    alert('✅ Password Reset Successfully!');
+                    openWorkerLogin();
+                } else {
+                    alert('Failed');
+                }
+            } catch(e) {
+                alert('Server Error');
+            }
+        }
+
+        // ==========================================
+        // USER LOGIC
+        // ==========================================
+        
+        async function u_handleLogin() {
+            const email = document.getElementById('u_loginEmail').value;
+            const password = document.getElementById('u_loginPassword').value;
+
+            try {
+                const res = await fetch('http://localhost:3000/user-login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    localStorage.setItem('loggedInEmail', email);
+                    window.location.href = 'userDashboard.html';
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch(e) {
+                alert('Server Error');
+            }
+        }
+
+        function openUserForgot() {
+            openModal('u_forgotSelectModal');
+        }
+
+        function openUserSecurityQ() { 
+            openModal('u_securityQModal'); 
+            document.getElementById('u_sq_step1').style.display='block';
+            document.getElementById('u_sq_step2').style.display='none';
+        }
+
+        function openUserEmail() {
+            openModal('u_emailLinkModal');
+        }
+
+        let u_resetEmailTemp = '';
+
+        async function u_verifyEmailForSQ() {
+            const email = document.getElementById('u_sq_email').value;
+            try {
+                const res = await fetch('http://localhost:3000/check-user-email', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email})
+                });
+                if(res.ok) {
+                    u_resetEmailTemp = email;
+                    document.getElementById('u_sq_step1').style.display = 'none';
+                    document.getElementById('u_sq_step2').style.display = 'block';
+                } else {
+                    alert('Email not found');
+                }
+            } catch(e) {
+                alert('Server Error');
+            }
+        }
+
+        async function u_verifySQ() {
+            const pet = document.getElementById('u_sq_pet').value;
+            const teacher = document.getElementById('u_sq_teacher').value;
+
+            try {
+                const res = await fetch('http://localhost:3000/verify-user-security-questions', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({email: u_resetEmailTemp, pet_name: pet, teacher_name: teacher})
+                });
+                if(res.ok) {
+                    openModal('u_resetModal');
+                } else {
+                    alert('Wrong Answers');
+                }
+            } catch(e) {
+                alert('Server Error');
+            }
+        }
+
+        async function u_sendResetLink() {
+            const email = document.getElementById('u_rec_email').value;
+            try {
+                const res = await fetch('http://localhost:3000/send-reset-email', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email})
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    alert('✅ ' + data.message);
+                    closeAllModals();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch(e) {
+                alert('Server Error');
+            }
+        }
+
+        async function u_resetPassword() {
+            const newPass = document.getElementById('u_newPass').value;
+            const confPass = document.getElementById('u_confPass').value;
+            
+            if(newPass.length < 6) {
+                alert('Too short');
+                return;
+            }
+            if(newPass !== confPass) {
+                alert('Mismatch');
+                return;
+            }
+
+            try {
+                const res = await fetch('http://localhost:3000/reset-user-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email: u_resetEmailTemp, new_password: newPass})
+                });
+                if(res.ok) {
+                    alert('✅ Updated!');
+                    openUserLogin();
+                } else {
+                    alert('Failed');
+                }
+            } catch(e) {
+                alert('Server Error');
+            }
+        }
+
+        // Check for URL Token (User email reset)
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            if(token) {
+                verifyResetToken(token);
+            }
+        }
+
+        async function verifyResetToken(token) {
+            try {
+                const res = await fetch('http://localhost:3000/verify-reset-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    u_resetEmailTemp = result.email;
+                    openModal('u_resetModal');
+                } else {
+                    alert('Invalid Link');
+                }
+            } catch (err) {
+                alert('Error checking link');
+            }
+        }
+
+        // ==========================================
+        // PARALLAX & ANIMATIONS
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            document.addEventListener('mousemove', (e) => {
+                const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+                const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+                document.body.style.backgroundPosition = `calc(50% + ${moveX}px) calc(50% + ${moveY}px)`;
+            });
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeAllModals();
+            }
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAllModals();
+            }
+        });
+    </script>
+    <script src="translations.js"></script>
+</body>
+</html>

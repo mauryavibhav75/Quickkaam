@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickKaam | Edit Worker Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --accent: #ff9933; 
+            --accent-dark: #e68a00;
+            --glass: rgba(255, 255, 255, 0.1); 
+            --dark: #1a1a1a;
+        }
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; 
+        }
+        
+        body {
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
+                        url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover; 
+            background-position: center; 
+            background-attachment: fixed;
+            color: white; 
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--glass); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px; 
+            width: 100%; 
+            max-width: 700px; 
+            border: 2px solid rgba(255,153,51,0.3);
+            animation: fadeIn 0.6s ease-out; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        h2 { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            font-size: 2rem;
+        }
+        
+        h2 span { 
+            color: var(--accent); 
+        }
+
+        /* Form Grid - Desktop: 2 columns, Mobile: 1 column */
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px; 
+        }
+        
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        label { 
+            font-size: 0.75rem; 
+            color: var(--accent); 
+            margin-bottom: 8px; 
+            text-transform: uppercase; 
+            font-weight: 600; 
+        }
+
+        input, select {
+            background: rgba(255,255,255,0.1); 
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 12px; 
+            border-radius: 8px; 
+            color: white; 
+            outline: none; 
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+        
+        input:focus, select:focus { 
+            border-color: var(--accent); 
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 0 0 3px rgba(255,153,51,0.2);
+        }
+        
+        input:disabled { 
+            background: rgba(255,255,255,0.05); 
+            color: #888; 
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        select option { 
+            background: var(--dark); 
+            color: white;
+        }
+
+        .full-width { 
+            grid-column: span 2; 
+        }
+        
+        #otherWorkBox { 
+            display: none; 
+            margin-top: 10px; 
+        }
+
+        .btn-container { 
+            grid-column: span 2; 
+            display: flex; 
+            gap: 15px; 
+            margin-top: 20px; 
+        }
+        
+        .btn {
+            flex: 1; 
+            padding: 15px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 1rem; 
+            transition: all 0.3s ease; 
+            text-transform: uppercase; 
+            border: none;
+        }
+        
+        .btn-save { 
+            background: var(--accent); 
+            color: white;
+            box-shadow: 0 5px 15px rgba(255,153,51,0.3);
+        }
+        
+        .btn-save:hover { 
+            background: var(--accent-dark); 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255,153,51,0.5);
+        }
+        
+        .btn-save:active {
+            transform: translateY(0);
+        }
+        
+        .btn-back { 
+            background: rgba(255,255,255,0.1); 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.3); 
+        }
+        
+        .btn-back:hover { 
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: scale(0.95); } 
+            to { opacity: 1; transform: scale(1); } 
+        }
+
+        /* ========================================
+           TABLET RESPONSIVE (768px - 1024px)
+           ======================================== */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .container {
+                max-width: 650px;
+                padding: 35px;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .form-grid {
+                gap: 18px;
+            }
+
+            input, select {
+                padding: 11px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* ========================================
+           MOBILE RESPONSIVE (up to 768px)
+           ======================================== */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+                align-items: flex-start;
+                padding-top: 40px;
+            }
+
+            .container {
+                max-width: 100%;
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+                margin-bottom: 25px;
+                letter-spacing: 1px;
+            }
+
+            /* CRITICAL: Form Grid becomes 1 column on mobile */
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            /* Full width items stay full width */
+            .full-width {
+                grid-column: span 1;
+            }
+
+            /* Button container also becomes 1 column */
+            .btn-container {
+                grid-column: span 1;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 14px;
+                font-size: 0.95rem;
+            }
+
+            input, select {
+                padding: 12px;
+                font-size: 0.95rem;
+            }
+
+            label {
+                font-size: 0.7rem;
+                margin-bottom: 6px;
+            }
+        }
+
+        /* ========================================
+           SMALL MOBILE (up to 480px)
+           ======================================== */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                padding-top: 30px;
+            }
+
+            .container {
+                padding: 25px 15px;
+                border-radius: 12px;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+                margin-bottom: 20px;
+            }
+
+            .form-grid {
+                gap: 15px;
+            }
+
+            input, select {
+                padding: 11px;
+                font-size: 0.9rem;
+            }
+
+            .btn {
+                padding: 13px;
+                font-size: 0.9rem;
+            }
+
+            label {
+                font-size: 0.68rem;
+            }
+        }
+
+        /* ========================================
+           EXTRA SMALL MOBILE (up to 360px)
+           ======================================== */
+        @media (max-width: 360px) {
+            .container {
+                padding: 20px 12px;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            input, select {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Edit <span>Profile</span></h2>
+    <form id="editForm" class="form-grid">
+        
+        <!-- Read Only Field -->
+        <div class="input-group full-width">
+            <label>Registered Mobile Number (Cannot be changed)</label>
+            <input type="text" id="contact" disabled>
+        </div>
+
+        <!-- Editable Fields -->
+        <div class="input-group">
+            <label>Worker Name</label>
+            <input type="text" id="name" required>
+        </div>
+        
+        <div class="input-group">
+            <label>Work Experience (Years)</label>
+            <input type="number" id="experience" min="0" required>
+        </div>
+        
+        <div class="input-group">
+            <label>Father's Name</label>
+            <input type="text" id="father" required>
+        </div>
+        
+        <div class="input-group">
+            <label>Mother's Name</label>
+            <input type="text" id="mother" required>
+        </div>
+
+        <div class="input-group full-width">
+            <label>Type of Work</label>
+            <select id="workSelect" onchange="toggleOther()" required>
+                <option value="Polymer Worker">Polymer Worker</option>
+                <option value="Teacher">Teacher</option>
+                <option value="Painter">Painter</option>
+                <option value="Two Wheeler Repair">Two Wheeler Repair</option>
+                <option value="Four Wheeler Mechanical">Four Wheeler Mechanical</option>
+                <option value="Rd Repair">Rd Repair</option>
+                <option value="Builder">Builder</option>
+                <option value="CNC Controller">CNC Controller</option>
+                <option value="BMC Controller">BMC Controller</option>
+                <option value="Gas Repair">Gas Repair</option>
+                <option value="Laptop Repair">Laptop Repair</option>
+                <option value="Cycle Repair">Cycle Repair</option>
+                <option value="Tiles Fitting">Tiles Fitting</option>
+                <option value="Personal">Choose your personal work...</option>
+            </select>
+            <div id="otherWorkBox">
+                <input type="text" id="otherWork" placeholder="Specify your personal work">
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <button type="button" class="btn btn-back" onclick="location.href='workerDashboard.html'">Cancel</button>
+            <button type="submit" class="btn btn-save">Update Profile</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function getCookie(name) {
+        const match = document.cookie.split('; ').find(c => c.startsWith(name + '='));
+        return match ? decodeURIComponent(match.split('=')[1]) : null;
+    }
+
+    let loggedInWorker = JSON.parse(localStorage.getItem("loggedInWorker"));
+
+    if (!loggedInWorker || !loggedInWorker.contact) {
+        // Fallback to cookie if localStorage was cleared
+        const cookieContact = getCookie("loggedInWorker");
+        if (cookieContact) {
+            loggedInWorker = { contact: cookieContact };
+            localStorage.setItem("loggedInWorker", JSON.stringify(loggedInWorker));
+        } else {
+            alert("Session expired. Please login again.");
+            window.location.href = "home.html";
+        }
+    }
+
+    // Load current data on startup
+    window.onload = async () => {
+        try {
+            const res = await fetch("http://localhost:3000/worker-profile", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contact: loggedInWorker.contact })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                document.getElementById("contact").value = data.contact;
+                document.getElementById("name").value = data.worker_name;
+                document.getElementById("father").value = data.father_name;
+                document.getElementById("mother").value = data.mother_name;
+                document.getElementById("experience").value = data.experience;
+                document.getElementById("workSelect").value = data.work_type;
+                
+                if(data.work_type === "Personal") {
+                    document.getElementById("otherWorkBox").style.display = "block";
+                    document.getElementById("otherWork").value = data.other_work;
+                }
+            } else {
+                alert("Error loading profile");
+            }
+        } catch (err) {
+            alert("Server connection failed");
+        }
+    };
+
+    function toggleOther() {
+        document.getElementById("otherWorkBox").style.display = 
+            (document.getElementById("workSelect").value === "Personal") ? "block" : "none";
+    }
+
+    // Update Form Submit
+    document.getElementById("editForm").onsubmit = async (e) => {
+        e.preventDefault();
+
+        const updatedData = {
+            contact: loggedInWorker.contact,
+            worker_name: document.getElementById("name").value,
+            father_name: document.getElementById("father").value,
+            mother_name: document.getElementById("mother").value,
+            experience: document.getElementById("experience").value,
+            work_type: document.getElementById("workSelect").value,
+            other_work: document.getElementById("otherWork").value
+        };
+
+        try {
+            const res = await fetch('http://localhost:3000/update-worker-profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData)
+            });
+
+            const result = await res.json();
+            if (res.ok) {
+                alert("✅ Profile Updated Successfully!");
+                window.location.href = "workerDashboard.html";
+            } else {
+                alert("❌ " + result.message);
+            }
+        } catch (err) {
+            alert("⚠️ Failed to update profile. Check server connection.");
+        }
+    };
+</script>
+<script src="translations.js"></script>
+</body>
+</html>

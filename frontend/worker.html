@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Kaam | Worker Registration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --accent: #ff9933; 
+            --glass: rgba(255, 255, 255, 0.1); 
+            --error: #ff4444; 
+            --success: #28a745; 
+        }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; 
+        }
+        
+        body {
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover; 
+            background-position: center; 
+            background-attachment: fixed;
+            color: white; 
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--glass); 
+            backdrop-filter: blur(15px); 
+            border-radius: 20px;
+            padding: 40px; 
+            width: 100%; 
+            max-width: 900px; 
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: slideUp 0.8s ease-out; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        h1 { 
+            text-align: center; 
+            margin-bottom: 25px; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+        }
+        h1 span { color: var(--accent); }
+
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px; 
+        }
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+        }
+        label { 
+            font-size: 0.75rem; 
+            color: var(--accent); 
+            margin-bottom: 5px; 
+            text-transform: uppercase; 
+            font-weight: 600; 
+        }
+
+        input, select {
+            background: rgba(255,255,255,0.1); 
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 12px; 
+            border-radius: 8px; 
+            color: white; 
+            outline: none; 
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+        input:focus, select:focus { 
+            border-color: var(--accent); 
+            background: rgba(255,255,255,0.2); 
+        }
+        input.error { 
+            border-color: var(--error); 
+            background: rgba(255, 68, 68, 0.1); 
+        }
+        input.success { 
+            border-color: var(--success); 
+            background: rgba(40, 167, 69, 0.1); 
+        }
+        select option { background: #222; }
+
+        .error-msg {
+            color: var(--error); 
+            font-size: 0.7rem; 
+            margin-top: 3px;
+            display: none; 
+            font-weight: 500;
+        }
+        .error-msg.show { display: block; }
+
+        .success-msg {
+            color: var(--success); 
+            font-size: 0.7rem; 
+            margin-top: 3px;
+            display: none; 
+            font-weight: 500;
+        }
+        .success-msg.show { display: block; }
+
+        .info-msg {
+            color: rgba(255, 153, 51, 0.9); 
+            font-size: 0.7rem; 
+            margin-top: 3px;
+            background: rgba(255, 153, 51, 0.1); 
+            padding: 8px; 
+            border-radius: 5px;
+            border-left: 3px solid var(--accent); 
+            font-weight: 500;
+        }
+
+        .full-width { grid-column: span 2; }
+        #otherWorkBox { display: none; margin-top: 10px; }
+
+        .btn {
+            grid-column: span 2; 
+            background: var(--accent); 
+            color: white; 
+            border: none;
+            padding: 15px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 1.1rem;
+            transition: 0.3s; 
+            margin-top: 10px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+        .btn:hover { 
+            transform: scale(1.02); 
+            background: #e68a00; 
+            box-shadow: 0 5px 15px rgba(255, 153, 51, 0.4); 
+        }
+
+        .login-btn {
+            position: absolute; 
+            top: 20px; 
+            right: 30px;
+            background: var(--accent); 
+            border: none; 
+            padding: 12px 25px;
+            border-radius: 8px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            color: white;
+            transition: 0.3s; 
+            z-index: 10;
+        }
+        .login-btn:hover { 
+            background: #e68a00; 
+            transform: translateY(-2px); 
+        }
+
+        .login-popup, .forgot-password-popup {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.85);
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .login-box, .forgot-password-box {
+            background: rgba(255,255,255,0.1); 
+            backdrop-filter: blur(20px);
+            padding: 40px; 
+            border-radius: 20px; 
+            width: 400px; 
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2); 
+            animation: popIn 0.3s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .forgot-password-box {
+            width: 450px;
+            text-align: left;
+        }
+        
+        .login-box h3, .forgot-password-box h3 { 
+            margin-bottom: 20px; 
+            color: var(--accent); 
+            font-size: 1.5rem; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        
+        .close-btn { 
+            margin-top: 15px; 
+            cursor: pointer; 
+            color: var(--accent); 
+            text-decoration: none; 
+            display: inline-block; 
+            transition: 0.3s;
+        }
+        .close-btn:hover { color: white; }
+
+        .forgot-password-link {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            color: var(--accent);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+        .forgot-password-link:hover {
+            color: white;
+        }
+
+        .recovery-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .recovery-option {
+            background: rgba(255, 153, 51, 0.1);
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .recovery-option:hover {
+            background: rgba(255, 153, 51, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 153, 51, 0.3);
+        }
+
+        .recovery-option h4 {
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .recovery-option p {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .recovery-form {
+            display: none;
+        }
+
+        .recovery-form.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(40px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes popIn { 
+            from { opacity: 0; transform: scale(0.9); } 
+            to { opacity: 1; transform: scale(1); } 
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .digit-counter {
+            position: absolute; 
+            right: 12px; 
+            top: 37px;
+            font-size: 0.7rem; 
+            color: rgba(255, 153, 51, 0.8); 
+            font-weight: 600;
+        }
+
+        .toggle-password {
+            position: absolute; 
+            right: 12px; 
+            top: 37px;
+            cursor: pointer; 
+            font-size: 1.2rem; 
+            user-select: none;
+        }
+
+        .password-strength {
+            height: 4px; 
+            border-radius: 2px; 
+            margin-top: 5px;
+            transition: 0.3s; 
+            background: rgba(255,255,255,0.2);
+        }
+        .password-strength.weak { width: 33%; background: #ff4444; }
+        .password-strength.medium { width: 66%; background: #ffa500; }
+        .password-strength.strong { width: 100%; background: #28a745; }
+
+        .location-btn {
+            background: rgba(40, 167, 69, 0.2); 
+            border: 1px solid #28a745;
+            color: #28a745;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+        .location-btn:hover {
+            background: rgba(40, 167, 69, 0.3);
+            transform: translateY(-2px);
+        }
+        .location-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .location-status {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 5px;
+            display: none;
+        }
+        .location-status.success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border-left: 3px solid #28a745;
+            display: block;
+        }
+        .location-status.error {
+            background: rgba(255, 68, 68, 0.1);
+            color: #ff4444;
+            border-left: 3px solid #ff4444;
+            display: block;
+        }
+
+        /* SEARCHABLE SELECT STYLES */
+        .searchable-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .searchable-select input {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent);
+            pointer-events: none;
+            font-size: 1.1rem;
+        }
+
+        .dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 20, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 153, 51, 0.3);
+            border-radius: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            margin-top: 5px;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .dropdown-list.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 153, 51, 0.2);
+            color: var(--accent);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .no-results {
+            padding: 15px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        .dropdown-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .dropdown-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .dropdown-list::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        .dropdown-list::-webkit-scrollbar-thumb:hover {
+            background: #e68a00;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .otp-timer {
+            text-align: center;
+            margin-top: 10px;
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .resend-otp {
+            text-align: center;
+            margin-top: 10px;
+            color: var(--accent);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        .resend-otp.show {
+            display: block;
+        }
+
+        .resend-otp:hover {
+            color: white;
+        }
+
+        /* ============================================ */
+        /* RESPONSIVE STYLES - MOBILE, TABLET, DESKTOP */
+        /* ============================================ */
+
+        /* MOBILE DEVICES (up to 480px) */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                background-attachment: scroll;
+            }
+            
+            .container {
+                padding: 20px 15px;
+                border-radius: 12px;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+                margin-bottom: 20px;
+                letter-spacing: 1px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .full-width {
+                grid-column: span 1;
+            }
+            
+            .btn {
+                grid-column: span 1;
+                font-size: 1rem;
+                padding: 14px;
+            }
+            
+            .login-btn {
+                top: 12px;
+                right: 12px;
+                padding: 8px 16px;
+                font-size: 0.8rem;
+            }
+            
+            .login-box, .forgot-password-box {
+                width: 100%;
+                max-width: 340px;
+                padding: 25px 18px;
+            }
+            
+            .login-box h3, .forgot-password-box h3 {
+                font-size: 1.2rem;
+            }
+            
+            input, select {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 11px;
+            }
+            
+            label {
+                font-size: 0.7rem;
+            }
+            
+            .recovery-options {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .recovery-option {
+                padding: 15px;
+            }
+            
+            .recovery-option h4 {
+                font-size: 0.95rem;
+            }
+            
+            .info-msg {
+                font-size: 0.65rem;
+                padding: 6px;
+            }
+        }
+
+        /* TABLETS (481px to 768px) */
+        @media (min-width: 481px) and (max-width: 768px) {
+            body {
+                padding: 15px;
+                background-attachment: scroll;
+            }
+            
+            .container {
+                padding: 30px 25px;
+                border-radius: 15px;
+                max-width: 680px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+                margin-bottom: 22px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+            
+            .full-width {
+                grid-column: span 1;
+            }
+            
+            .btn {
+                grid-column: span 1;
+                font-size: 1.05rem;
+            }
+            
+            .login-btn {
+                top: 18px;
+                right: 20px;
+                padding: 11px 22px;
+                font-size: 0.9rem;
+            }
+            
+            .login-box {
+                width: 420px;
+                padding: 35px 28px;
+            }
+            
+            .forgot-password-box {
+                width: 480px;
+                padding: 35px 28px;
+            }
+            
+            input, select {
+                font-size: 16px;
+            }
+        }
+
+        /* SMALL TABLETS/LARGE PHONES (769px to 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container {
+                max-width: 750px;
+                padding: 35px 30px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 18px;
+            }
+            
+            .login-box {
+                width: 420px;
+            }
+            
+            .forgot-password-box {
+                width: 480px;
+            }
+        }
+
+        /* DESKTOP (1025px and above) */
+        @media (min-width: 1025px) {
+            .container {
+                max-width: 900px;
+                padding: 40px;
+            }
+            
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+
+        /* LARGE DESKTOP (1440px and above) */
+        @media (min-width: 1440px) {
+            .container {
+                max-width: 1000px;
+                padding: 50px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+                margin-bottom: 30px;
+            }
+            
+            input, select {
+                font-size: 1rem;
+                padding: 14px;
+            }
+            
+            .btn {
+                font-size: 1.2rem;
+                padding: 16px;
+            }
+        }
+
+        /* LANDSCAPE MODE FOR MOBILE */
+        @media (max-width: 768px) and (orientation: landscape) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+                margin: 10px auto;
+            }
+            
+            h1 {
+                font-size: 1.4rem;
+                margin-bottom: 15px;
+            }
+            
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<button class="login-btn" onclick="openLogin()" data-lang-key="login-title-worker">🔐 Worker Login</button>
+
+<!-- LOGIN POPUP -->
+<div id="loginBox" class="login-popup">
+    <div class="login-box">
+        <h3 data-lang-key="login-title-worker">Worker Login</h3>
+        <div style="position: relative; margin-bottom: 15px;">
+            <input type="tel" id="loginMobile" data-lang-ph="ph-login-mobile" placeholder="Enter 10-digit Mobile" maxlength="10"
+                style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3);
+                       background: rgba(255,255,255,0.1); color: white;"
+                oninput="validateLoginMobile(this)">
+            <div class="error-msg" id="loginMobileError"></div>
+        </div>
+        <div style="position: relative;">
+            <input type="password" id="loginPassword" data-lang-ph="ph-login-password" placeholder="Enter Password"
+                style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3);
+                       background: rgba(255,255,255,0.1); color: white;">
+            <span class="toggle-password" onclick="toggleLoginPassword()">👁️</span>
+            <div class="error-msg" id="loginPasswordError"></div>
+        </div>
+        <a class="forgot-password-link" onclick="openForgotPassword()" data-lang-key="forgot-password">🔑 Forgot Password?</a>
+        <button onclick="loginWorker()" class="btn" style="width: 100%; margin-top: 20px;" data-lang-key="login-btn-worker">Login</button>
+        <p class="close-btn" onclick="closeLogin()" data-lang-key="btn-close">✕ Close</p>
+    </div>
+</div>
+
+<!-- FORGOT PASSWORD POPUP -->
+<div id="forgotPasswordBox" class="forgot-password-popup">
+    <div class="forgot-password-box">
+        <h3>Password Recovery</h3>
+        
+        <!-- Step 1: Choose Recovery Method -->
+        <div id="recoveryMethodSelection">
+            <p style="text-align: center; margin-bottom: 15px; color: rgba(255,255,255,0.9);">
+                Choose how you want to recover your password:
+            </p>
+            <div class="recovery-options">
+                <div class="recovery-option" onclick="selectRecoveryMethod('security')">
+                    <h4>🔐 Security Questions</h4>
+                    <p>Answer your security questions</p>
+                </div>
+                <div class="recovery-option" onclick="selectRecoveryMethod('otp')">
+                    <h4>📱 OTP via SMS</h4>
+                    <p>Get OTP on registered mobile</p>
+                </div>
+            </div>
+            <button class="back-btn" onclick="closeForgotPassword()">← Back to Login</button>
+        </div>
+
+        <!-- Step 2: Security Questions Recovery -->
+        <div id="securityQuestionsForm" class="recovery-form">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Enter your registered mobile number:</label>
+                <input type="tel" id="securityMobile" placeholder="10-digit Mobile" maxlength="10"
+                    style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); 
+                           background: rgba(255,255,255,0.1); color: white;">
+                <div class="error-msg" id="securityMobileError"></div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Childhood best friend's name:</label>
+                <input type="text" id="friendName" placeholder="Enter friend's name"
+                    style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); 
+                           background: rgba(255,255,255,0.1); color: white;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Primary school name:</label>
+                <input type="text" id="schoolName" placeholder="Enter school name"
+                    style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); 
+                           background: rgba(255,255,255,0.1); color: white;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Birthplace name:</label>
+                <input type="text" id="birthplace" placeholder="Enter birthplace"
+                    style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); 
+                           background: rgba(255,255,255,0.1); color: white;">
+            </div>
+            
+            <button onclick="verifySecurityQuestions()" class="btn" style="width: 100%;">Verify Answers</button>
+            <button class="back-btn" onclick="backToRecoverySelection()">← Back</button>
+        </div>
+
+        <!-- Step 3: OTP Recovery -->
+        <div id="otpRecoveryForm" class="recovery-form">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Enter your registered mobile number:</label>
+                <input type="tel" id="otpMobile" placeholder="10-digit Mobile" maxlength="10"
+                    style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); 
+                           background: rgba(255,255,255,0.1); color: white;">
+                <div class="error-msg" id="otpMobileError"></div>
+            </div>
+            
+            <button onclick="sendOTP()" class="btn" style="width: 100%; margin-bottom: 15px;" id="sendOtpBtn">Send OTP</button>
+            
+            <div id="otpVerificationSection" style="display: none;">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Enter 6-digit OTP:</label>
+                    <input type="text" id="otpCode" placeholder="Enter OTP" maxlength="6"
+                        style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); 
+                               background: rgba(255,255,255,0.1); color: white;">
+                    <div class="otp-timer" id="otpTimer"></div>
+                    <a class="resend-otp" id="resendOtpLink" onclick="resendOTP()">Resend OTP</a>
+                </div>
+                
+                <button onclick="verifyOTP()" class="btn" style="width: 100%;">Verify OTP</button>
+            </div>
+            
+            <button class="back-btn" onclick="backToRecoverySelection()">← Back</button>
+        </div>
+
+        <!-- Step 4: Reset Password Form -->
+        <div id="resetPasswordForm" class="recovery-form">
+            <input type="hidden" id="resetMobile">
+            
+            <div style="position: relative; margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">New Password:</label>
+                <input type="password" id="newPassword" placeholder="Enter new password"
+                    style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); 
+                           background: rgba(255,255,255,0.1); color: white;"
+                    oninput="validateNewPassword(this)">
+                <span class="toggle-password" onclick="togglePassword('newPassword')" style="top: 32px;">👁️</span>
+                <div class="password-strength" id="newPasswordStrength"></div>
+                <div class="error-msg" id="newPasswordError"></div>
+                <div class="success-msg" id="newPasswordSuccess"></div>
+            </div>
+            
+            <div style="position: relative; margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Confirm New Password:</label>
+                <input type="password" id="confirmNewPassword" placeholder="Re-enter password"
+                    style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); 
+                           background: rgba(255,255,255,0.1); color: white;"
+                    oninput="validateConfirmNewPassword()">
+                <span class="toggle-password" onclick="togglePassword('confirmNewPassword')" style="top: 32px;">👁️</span>
+                <div class="error-msg" id="confirmNewPasswordError"></div>
+                <div class="success-msg" id="confirmNewPasswordSuccess"></div>
+            </div>
+            
+            <button onclick="resetPassword()" class="btn" style="width: 100%;">Reset Password</button>
+        </div>
+
+        <p class="close-btn" onclick="closeForgotPassword()">✕ Close</p>
+    </div>
+</div>
+
+<div class="container">
+    <h1>QUICK<span>KAAM</span></h1>
+    <form id="regForm" class="form-grid">
+
+        <div class="input-group">
+            <label>Worker Name *</label>
+            <input type="text" id="name" placeholder="Enter full name" required>
+        </div>
+
+        <div class="input-group">
+            <label>Contact Number *</label>
+            <input type="tel" id="contact" placeholder="Enter 10-digit mobile" 
+                   maxlength="10" required oninput="validateMobile(this)">
+            <span class="digit-counter" id="mobileCounter">0/10</span>
+            <div class="error-msg" id="contactError"></div>
+        </div>
+
+        <div class="input-group">
+            <label data-lang-key="label-father-name">Father's Name *</label>
+            <input type="text" id="father" placeholder="Enter father's name" required>
+        </div>
+
+        <div class="input-group">
+            <label data-lang-key="label-mother-name">Mother's Name *</label>
+            <input type="text" id="mother" placeholder="Enter mother's name" required>
+        </div>
+
+        <div class="input-group">
+            <label data-lang-key="label-experience">Work Experience (Years) *</label>
+            <input type="number" id="experience" min="0" max="50"
+                   placeholder="Years of experience" required>
+        </div>
+
+        <div class="input-group">
+            <label data-lang-key="label-friend-name">Childhood Best Friend's Name *</label>
+            <input type="text" id="friend_name" placeholder="For password recovery" required>
+        </div>
+
+        <div class="input-group">
+            <label data-lang-key="label-school-name">Primary School Name *</label>
+            <input type="text" id="school_name" placeholder="For password recovery" required>
+        </div>
+
+        <div class="input-group">
+            <label data-lang-key="label-birthplace">Birthplace *</label>
+            <input type="text" id="birthplace_reg" placeholder="For password recovery" required>
+        </div>
+
+        <div class="input-group">
+            <label data-lang-key="label-password">Create Password *</label>
+            <input type="password" id="password" data-lang-ph="ph-password" placeholder="Enter strong password"
+                   required oninput="validatePassword(this)">
+            <span class="toggle-password" onclick="togglePassword('password')">👁️</span>
+            <div class="password-strength" id="passwordStrength"></div>
+            <div class="error-msg" id="passwordError"></div>
+            <div class="success-msg" id="passwordSuccess"></div>
+        </div>
+
+        <div class="input-group">
+            <label data-lang-key="label-confirm-password">Confirm Password *</label>
+            <input type="password" id="confirmPassword" data-lang-ph="ph-confirm-password" placeholder="Re-enter password"
+                   required oninput="validateConfirmPassword()">
+            <span class="toggle-password" onclick="togglePassword('confirmPassword')">👁️</span>
+            <div class="error-msg" id="confirmPasswordError"></div>
+            <div class="success-msg" id="confirmPasswordSuccess"></div>
+        </div>
+
+        <div class="input-group full-width">
+            <div class="info-msg" data-lang-key="security-note">
+                🔒 <strong>Important:</strong> Please remember this password carefully.
+                It will be required every time you log in to your worker account.
+            </div>
+        </div>
+
+        <!-- SEARCHABLE STATE -->
+        <div class="input-group">
+            <label data-lang-key="label-state">State *</label>
+            <div class="searchable-select">
+                <input type="text" id="stateInput" placeholder="🔍 Search or select state..." 
+                       autocomplete="off" readonly onfocus="toggleStateDropdown()" required>
+                <span class="search-icon">▼</span>
+                <div class="dropdown-list" id="stateDropdown"></div>
+            </div>
+            <input type="hidden" id="stateValue" required>
+        </div>
+
+        <!-- SEARCHABLE CITY -->
+        <div class="input-group">
+            <label>City *</label>
+            <div class="searchable-select">
+                <input type="text" id="cityInput" placeholder="Select state first..." 
+                       autocomplete="off" readonly disabled required>
+                <span class="search-icon">▼</span>
+                <div class="dropdown-list" id="cityDropdown"></div>
+            </div>
+            <input type="hidden" id="cityValue" required>
+        </div>
+
+        <!-- SEARCHABLE AREA -->
+        <div class="input-group full-width">
+            <label>Area/Locality *</label>
+            <div class="searchable-select">
+                <input type="text" id="areaInput" placeholder="Select city first..." 
+                       autocomplete="off" readonly disabled required>
+                <span class="search-icon">▼</span>
+                <div class="dropdown-list" id="areaDropdown"></div>
+            </div>
+            <input type="hidden" id="areaValue" required>
+        </div>
+
+        <div class="input-group full-width">
+            <label>📍 Current Location (Optional - Helps users find nearest workers)</label>
+            <button type="button" class="location-btn" id="getLocationBtn" onclick="captureLocation()">
+                <span>📍</span>
+                <span id="locationBtnText">Get My Current Location</span>
+            </button>
+            <div class="location-status" id="locationStatus"></div>
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+        </div>
+
+        <!-- SEARCHABLE WORK TYPE -->
+        <div class="input-group full-width">
+            <label data-lang-key="label-work-type">Type of Work *</label>
+            <div class="searchable-select">
+                <input type="text" id="workInput" placeholder="🔍 Search or select your profession..." 
+                       autocomplete="off" readonly onfocus="toggleWorkDropdown()" required>
+                <span class="search-icon">▼</span>
+                <div class="dropdown-list" id="workDropdown"></div>
+            </div>
+            <input type="hidden" id="workValue" required>
+            <div id="otherWorkBox">
+                <input type="text" id="otherWork" placeholder="Specify your work type">
+            </div>
+        </div>
+
+        <button type="submit" class="btn" data-lang-key="btn-register-worker">🚀 Submit Registration</button>
+    </form>
+</div>
+
+<script>
+    // ENHANCED INDIA MAP WITH AREAS
+    const indiaLocationData = {
+        "Maharashtra": {
+            "Mumbai": ["Andheri", "Bandra", "Borivali", "Dadar", "Thane", "Navi Mumbai", "Powai", "Kurla"],
+            "Pune": ["PCMC (Pimpri-Chinchwad)", "Kothrud", "Hinjewadi", "Wakad", "Viman Nagar", "Koregaon Park", "Shivajinagar", "Hadapsar"],
+            "Nagpur": ["Dharampeth", "Sitabuldi", "Sadar", "Wardha Road"],
+            "Nashik": ["Nashik Road", "College Road", "Panchavati", "Satpur"],
+            "Thane": ["Ghodbunder Road", "Kopri", "Naupada", "Majiwada"]
+        },
+        "Karnataka": {
+            "Bengaluru": ["Whitefield", "Koramangala", "Indiranagar", "Electronic City", "HSR Layout", "Marathahalli", "JP Nagar", "BTM Layout"],
+            "Mysuru": ["Chamundi Hill", "Jayalakshmipuram", "Kuvempunagar", "VV Mohalla"]
+        },
+        "Delhi": {
+            "New Delhi": ["Connaught Place", "Karol Bagh", "Chandni Chowk", "Saket", "Vasant Kunj", "Hauz Khas", "Lajpat Nagar"],
+            "Dwarka": ["Sector 1-23", "Dwarka Mor", "Palam"]
+        },
+        "Gujarat": {
+            "Ahmedabad": ["Navrangpura", "Satellite", "Vastrapur", "Maninagar", "Bodakdev"],
+            "Surat": ["Adajan", "Vesu", "Pal", "Katargam"],
+            "Vadodara": ["Alkapuri", "Manjalpur", "Gotri", "Fatehgunj"]
+        },
+        "Tamil Nadu": {
+            "Chennai": ["T Nagar", "Anna Nagar", "Velachery", "Adyar", "Guindy", "Tambaram"],
+            "Coimbatore": ["RS Puram", "Gandhipuram", "Saibaba Colony", "Peelamedu"]
+        },
+        "Telangana": {
+            "Hyderabad": ["Hitech City", "Gachibowli", "Madhapur", "Kukatpally", "Begumpet", "Secunderabad"],
+            "Warangal": ["Hanamkonda", "Kazipet", "Station Road"]
+        },
+        "West Bengal": {
+            "Kolkata": ["Salt Lake", "Park Street", "Ballygunge", "Howrah", "New Town"],
+            "Howrah": ["Shibpur", "Liluah", "Belur"]
+        },
+        "Uttar Pradesh": {
+            "Lucknow": ["Gomti Nagar", "Hazratganj", "Alambagh", "Indira Nagar"],
+            "Noida": ["Sector 18", "Sector 62", "Greater Noida"],
+            "Kanpur": ["Civil Lines", "Kakadeo", "Swaroop Nagar"],
+            "Varanasi": ["Lanka", "Sigra", "Nadesar"]
+        },
+        "Rajasthan": {
+            "Jaipur": ["Malviya Nagar", "Vaishali Nagar", "C-Scheme", "Mansarovar"],
+            "Jodhpur": ["Sardarpura", "Shastri Nagar", "Paota"]
+        },
+        "Haryana": {
+            "Gurugram": ["Cyber City", "DLF Phase 1-5", "Sohna Road", "Golf Course Road"],
+            "Faridabad": ["Sector 15-21", "NIT", "Old Faridabad"]
+        },
+        "Punjab": {
+            "Ludhiana": ["Civil Lines", "Model Town", "Sarabha Nagar"],
+            "Amritsar": ["Mall Road", "Ranjit Avenue", "Lawrence Road"]
+        },
+        "Madhya Pradesh": {
+            "Indore": ["Vijay Nagar", "AB Road", "Palasia", "Rau"],
+            "Bhopal": ["Arera Colony", "MP Nagar", "Kolar Road"]
+        },
+        "Kerala": {
+            "Kochi": ["Edapally", "Kakkanad", "Marine Drive", "Fort Kochi"],
+            "Thiruvananthapuram": ["Pattom", "Vazhuthacaud", "Kesavadasapuram"]
+        },
+        "Andhra Pradesh": {
+            "Visakhapatnam": ["MVP Colony", "Gajuwaka", "Madhurawada"],
+            "Vijayawada": ["Benz Circle", "MG Road", "Patamata"],
+            "Guntur": ["Brodipet", "Arundelpet", "Kothapeta"]
+        },
+        "Bihar": {
+            "Patna": ["Boring Road", "Kankarbagh", "Patliputra", "Rajendra Nagar"],
+            "Gaya": ["Station Road", "Civil Lines"]
+        },
+        "Odisha": {
+            "Bhubaneswar": ["Saheed Nagar", "Khandagiri", "Patia", "Chandrasekharpur"],
+            "Cuttack": ["Badambadi", "Link Road", "Buxi Bazaar"]
+        },
+        "Assam": {
+            "Guwahati": ["Fancy Bazaar", "Paltan Bazaar", "Ulubari", "Dispur"],
+            "Silchar": ["Tarapur", "Ambicapatty"]
+        },
+        "Chhattisgarh": {
+            "Raipur": ["Civil Lines", "Shankar Nagar", "Telibandha"],
+            "Bhilai": ["Sector 1-10", "Nehru Nagar"]
+        },
+        "Jharkhand": {
+            "Ranchi": ["Lalpur", "Doranda", "Kanke Road"],
+            "Jamshedpur": ["Bistupur", "Sakchi", "Sonari"]
+        },
+        "Goa": {
+            "Panaji": ["Miramar", "Campal", "St Inez"],
+            "Margao": ["Market Area", "Comba"]
+        },
+        "Himachal Pradesh": {
+            "Shimla": ["Mall Road", "Lakkar Bazaar", "Sanjauli"],
+            "Manali": ["Old Manali", "Vashisht"]
+        },
+        "Jammu & Kashmir": {
+            "Srinagar": ["Lal Chowk", "Dal Lake", "Hazratbal"],
+            "Jammu": ["Gandhi Nagar", "Bahu Fort", "Residency Road"]
+        },
+        "Arunachal Pradesh": {
+            "Itanagar": ["Naharlagun", "Ganga"],
+            "Tawang": ["Tawang Monastery Area"]
+        }
+    };
+
+    const workTypes = [
+        "Builder", "Tiles Fitting", "Plumber", "Electrician", "Carpenter", "Mason", "Welder", 
+        "Painter", "Roofer", "Flooring Specialist", "Glass Fitter", "Aluminum Fabricator",
+        "Two Wheeler Repair", "Four Wheeler Mechanical", "Auto Electrician", "Puncture Repair",
+        "Car Washing", "Denting & Painting", "Laptop Repair", "Mobile Repair", "Computer Repair",
+        "TV Repair", "AC Repair", "Refrigerator Repair", "Washing Machine Repair", "Microwave Repair",
+        "CCTV Installation", "DTH Service", "Gas Repair", "Water Purifier Service", "Geyser Repair",
+        "Chimney Repair", "Mixer Grinder Repair", "House Cleaning", "Pest Control", "Sofa Cleaning",
+        "Carpet Cleaning", "Water Tank Cleaning", "Gardener", "Beautician", "Hairdresser/Barber",
+        "Makeup Artist", "Massage Therapist", "Mehandi Artist", "Nurse", "Physiotherapist",
+        "Caretaker", "Pharmacist", "Teacher", "Tutor", "Music Teacher", "Dance Teacher",
+        "Yoga Instructor", "Computer Training", "Cook/Chef", "Caterer", "Waiter", "Baker",
+        "Tailor", "Embroidery Worker", "Laundry/Dry Cleaning", "Ironing Service", "Polymer Worker",
+        "CNC Controller", "Machinist", "Fitter", "Operator", "Quality Inspector", "Driver",
+        "Delivery Person", "Courier Service", "Packers & Movers", "Photographer", "Videographer",
+        "Graphic Designer", "Interior Designer", "Event Planner", "Decorator", "DJ",
+        "Sound System Provider", "Security Guard", "Watchman", "Locksmith", "Cobbler",
+        "Printer", "Astrologer", "Pandit/Priest", "Other (Specify below)"
+    ];
+
+    // Global OTP storage (in production, this should be handled server-side)
+    let currentOTP = null;
+    let otpTimer = null;
+
+    // SEARCHABLE STATE DROPDOWN
+    function toggleStateDropdown() {
+        const dropdown = document.getElementById('stateDropdown');
+        const input = document.getElementById('stateInput');
+        
+        closeAllDropdowns();
+        dropdown.classList.add('show');
+        input.removeAttribute('readonly');
+        input.focus();
+        renderStateOptions(Object.keys(indiaLocationData).sort());
+    }
+
+    function renderStateOptions(states) {
+        const dropdown = document.getElementById('stateDropdown');
+        if (states.length === 0) {
+            dropdown.innerHTML = '<div class="no-results">No states found</div>';
+            return;
+        }
+        dropdown.innerHTML = states.map(state => 
+            `<div class="dropdown-item" onclick="selectState('${state}')">${state}</div>`
+        ).join('');
+    }
+
+    function selectState(state) {
+        document.getElementById('stateInput').value = state;
+        document.getElementById('stateValue').value = state;
+        document.getElementById('stateDropdown').classList.remove('show');
+        document.getElementById('stateInput').setAttribute('readonly', 'readonly');
+        
+        // Reset city and area
+        document.getElementById('cityInput').value = '';
+        document.getElementById('cityValue').value = '';
+        document.getElementById('areaInput').value = '';
+        document.getElementById('areaValue').value = '';
+        
+        // Enable city dropdown
+        const cityInput = document.getElementById('cityInput');
+        cityInput.removeAttribute('disabled');
+        cityInput.placeholder = '🔍 Search or select city...';
+        
+        // Disable area until city is selected
+        const areaInput = document.getElementById('areaInput');
+        areaInput.setAttribute('disabled', 'disabled');
+        areaInput.placeholder = 'Select city first...';
+    }
+
+    // SEARCHABLE CITY DROPDOWN
+    function toggleCityDropdown() {
+        const state = document.getElementById('stateValue').value;
+        if (!state) {
+            alert('Please select a state first!');
+            return;
+        }
+        
+        const dropdown = document.getElementById('cityDropdown');
+        const input = document.getElementById('cityInput');
+        
+        closeAllDropdowns();
+        dropdown.classList.add('show');
+        input.removeAttribute('readonly');
+        input.focus();
+        renderCityOptions(Object.keys(indiaLocationData[state]).sort());
+    }
+
+    function renderCityOptions(cities) {
+        const dropdown = document.getElementById('cityDropdown');
+        if (!cities || cities.length === 0) {
+            dropdown.innerHTML = '<div class="no-results">No cities found</div>';
+            return;
+        }
+        dropdown.innerHTML = cities.map(city => 
+            `<div class="dropdown-item" onclick="selectCity('${city}')">${city}</div>`
+        ).join('');
+    }
+
+    function selectCity(city) {
+        document.getElementById('cityInput').value = city;
+        document.getElementById('cityValue').value = city;
+        document.getElementById('cityDropdown').classList.remove('show');
+        document.getElementById('cityInput').setAttribute('readonly', 'readonly');
+        
+        // Reset area
+        document.getElementById('areaInput').value = '';
+        document.getElementById('areaValue').value = '';
+        
+        // Enable area dropdown
+        const areaInput = document.getElementById('areaInput');
+        areaInput.removeAttribute('disabled');
+        areaInput.placeholder = '🔍 Search or select area...';
+    }
+
+    // SEARCHABLE AREA DROPDOWN
+    function toggleAreaDropdown() {
+        const state = document.getElementById('stateValue').value;
+        const city = document.getElementById('cityValue').value;
+        
+        if (!state || !city) {
+            alert('Please select state and city first!');
+            return;
+        }
+        
+        const dropdown = document.getElementById('areaDropdown');
+        const input = document.getElementById('areaInput');
+        
+        closeAllDropdowns();
+        dropdown.classList.add('show');
+        input.removeAttribute('readonly');
+        input.focus();
+        renderAreaOptions(indiaLocationData[state][city]);
+    }
+
+    function renderAreaOptions(areas) {
+        const dropdown = document.getElementById('areaDropdown');
+        if (!areas || areas.length === 0) {
+            dropdown.innerHTML = '<div class="no-results">No areas found</div>';
+            return;
+        }
+        dropdown.innerHTML = areas.map(area => 
+            `<div class="dropdown-item" onclick="selectArea('${area}')">${area}</div>`
+        ).join('');
+    }
+
+    function selectArea(area) {
+        document.getElementById('areaInput').value = area;
+        document.getElementById('areaValue').value = area;
+        document.getElementById('areaDropdown').classList.remove('show');
+        document.getElementById('areaInput').setAttribute('readonly', 'readonly');
+    }
+
+    // SEARCHABLE WORK TYPE DROPDOWN
+    function toggleWorkDropdown() {
+        const dropdown = document.getElementById('workDropdown');
+        const input = document.getElementById('workInput');
+        
+        closeAllDropdowns();
+        dropdown.classList.add('show');
+        input.removeAttribute('readonly');
+        input.focus();
+        renderWorkOptions(workTypes);
+    }
+
+    function renderWorkOptions(works) {
+        const dropdown = document.getElementById('workDropdown');
+        if (works.length === 0) {
+            dropdown.innerHTML = '<div class="no-results">No work types found</div>';
+            return;
+        }
+        dropdown.innerHTML = works.map(work => 
+            `<div class="dropdown-item" onclick="selectWork('${work}')">${work}</div>`
+        ).join('');
+    }
+
+    function selectWork(work) {
+        document.getElementById('workInput').value = work;
+        document.getElementById('workValue').value = work;
+        document.getElementById('workDropdown').classList.remove('show');
+        document.getElementById('workInput').setAttribute('readonly', 'readonly');
+        
+        // Show "Other" input if needed
+        document.getElementById('otherWorkBox').style.display = 
+            (work === "Other (Specify below)") ? "block" : "none";
+    }
+
+    // SEARCH FUNCTIONALITY
+    document.getElementById('stateInput').addEventListener('input', function(e) {
+        if (this.hasAttribute('readonly')) return;
+        const searchTerm = e.target.value.toLowerCase();
+        const filtered = Object.keys(indiaLocationData).filter(state => 
+            state.toLowerCase().includes(searchTerm)
+        ).sort();
+        renderStateOptions(filtered);
+    });
+
+    document.getElementById('cityInput').addEventListener('input', function(e) {
+        if (this.hasAttribute('readonly')) return;
+        const state = document.getElementById('stateValue').value;
+        if (!state) return;
+        const searchTerm = e.target.value.toLowerCase();
+        const filtered = Object.keys(indiaLocationData[state]).filter(city => 
+            city.toLowerCase().includes(searchTerm)
+        ).sort();
+        renderCityOptions(filtered);
+    });
+
+    document.getElementById('areaInput').addEventListener('input', function(e) {
+        if (this.hasAttribute('readonly')) return;
+        const state = document.getElementById('stateValue').value;
+        const city = document.getElementById('cityValue').value;
+        if (!state || !city) return;
+        const searchTerm = e.target.value.toLowerCase();
+        const filtered = indiaLocationData[state][city].filter(area => 
+            area.toLowerCase().includes(searchTerm)
+        );
+        renderAreaOptions(filtered);
+    });
+
+    document.getElementById('workInput').addEventListener('input', function(e) {
+        if (this.hasAttribute('readonly')) return;
+        const searchTerm = e.target.value.toLowerCase();
+        const filtered = workTypes.filter(work => 
+            work.toLowerCase().includes(searchTerm)
+        );
+        renderWorkOptions(filtered);
+    });
+
+    // Add click event to city and area inputs
+    document.getElementById('cityInput').addEventListener('focus', toggleCityDropdown);
+    document.getElementById('areaInput').addEventListener('focus', toggleAreaDropdown);
+
+    // CLOSE DROPDOWNS ON OUTSIDE CLICK
+    function closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-list').forEach(d => d.classList.remove('show'));
+        document.querySelectorAll('.searchable-select input[type="text"]').forEach(i => {
+            if (i.value) i.setAttribute('readonly', 'readonly');
+        });
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.searchable-select')) {
+            closeAllDropdowns();
+        }
+    });
+
+    // GEOLOCATION
+    function captureLocation() {
+        const btn = document.getElementById('getLocationBtn');
+        const btnText = document.getElementById('locationBtnText');
+        const statusDiv = document.getElementById('locationStatus');
+        
+        if (!navigator.geolocation) {
+            statusDiv.className = 'location-status error';
+            statusDiv.textContent = '❌ Geolocation is not supported by your browser';
+            return;
+        }
+
+        btn.disabled = true;
+        btnText.textContent = 'Getting Location...';
+        statusDiv.className = 'location-status';
+        statusDiv.style.display = 'block';
+        statusDiv.textContent = '🔄 Please allow location access when prompted...';
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+                
+                btnText.textContent = '✅ Location Captured';
+                statusDiv.className = 'location-status success';
+                statusDiv.innerHTML = `
+                    ✅ <strong>Location saved!</strong><br>
+                    📍 Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}<br>
+                    <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" 
+                       style="color: #28a745; text-decoration: underline;">
+                       View on Google Maps
+                    </a>
+                `;
+                
+                setTimeout(() => { btn.disabled = false; }, 2000);
+            },
+            (error) => {
+                let errorMessage = '';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = '❌ Location access denied. Please enable location permissions.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = '❌ Location information unavailable.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = '❌ Location request timed out.';
+                        break;
+                    default:
+                        errorMessage = '❌ An unknown error occurred.';
+                }
+                statusDiv.className = 'location-status error';
+                statusDiv.textContent = errorMessage;
+                btnText.textContent = 'Get My Current Location';
+                btn.disabled = false;
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    }
+
+    // ===== PASSWORD TOGGLE =====
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        field.type = field.type === 'password' ? 'text' : 'password';
+    }
+
+    function toggleLoginPassword() {
+        const field = document.getElementById('loginPassword');
+        field.type = field.type === 'password' ? 'text' : 'password';
+    }
+
+    // ===== VALIDATION FUNCTIONS =====
+    function validateMobile(input) {
+        const value = input.value.replace(/\D/g, '');
+        input.value = value;
+        const counter = document.getElementById('mobileCounter');
+        const errorMsg = document.getElementById('contactError');
+        
+        if (counter) {
+            counter.textContent = `${value.length}/10`;
+        }
+        
+        if (value.length > 0 && value.length < 10) {
+            input.classList.add('error');
+            if (errorMsg) {
+                errorMsg.textContent = `❌ ${10 - value.length} more digit${10 - value.length > 1 ? 's' : ''} required`;
+                errorMsg.classList.add('show');
+            }
+        } else if (value.length === 10) {
+            input.classList.remove('error');
+            if (errorMsg) {
+                errorMsg.classList.remove('show');
+            }
+            if (counter) {
+                counter.style.color = '#28a745';
+            }
+        } else {
+            input.classList.remove('error');
+            if (errorMsg) {
+                errorMsg.classList.remove('show');
+            }
+            if (counter) {
+                counter.style.color = 'rgba(255, 153, 51, 0.8)';
+            }
+        }
+    }
+
+    function validatePassword(input) {
+        const value = input.value;
+        const strengthBar = document.getElementById('passwordStrength');
+        const errorMsg = document.getElementById('passwordError');
+        const successMsg = document.getElementById('passwordSuccess');
+        
+        if (value.length < 6) {
+            input.classList.add('error');
+            input.classList.remove('success');
+            errorMsg.textContent = '❌ Password must be at least 6 characters';
+            errorMsg.classList.add('show');
+            successMsg.classList.remove('show');
+            strengthBar.className = 'password-strength weak';
+        } else if (value.length < 10) {
+            input.classList.remove('error');
+            input.classList.add('success');
+            errorMsg.classList.remove('show');
+            successMsg.textContent = '✅ Good password';
+            successMsg.classList.add('show');
+            strengthBar.className = 'password-strength medium';
+        } else {
+            input.classList.remove('error');
+            input.classList.add('success');
+            errorMsg.classList.remove('show');
+            successMsg.textContent = '✅ Strong password';
+            successMsg.classList.add('show');
+            strengthBar.className = 'password-strength strong';
+        }
+        validateConfirmPassword();
+    }
+
+    function validateConfirmPassword() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const errorMsg = document.getElementById('confirmPasswordError');
+        const successMsg = document.getElementById('confirmPasswordSuccess');
+        const input = document.getElementById('confirmPassword');
+        
+        if (confirmPassword.length === 0) {
+            input.classList.remove('error', 'success');
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            input.classList.add('error');
+            input.classList.remove('success');
+            errorMsg.textContent = '❌ Passwords do not match';
+            errorMsg.classList.add('show');
+            successMsg.classList.remove('show');
+        } else {
+            input.classList.remove('error');
+            input.classList.add('success');
+            errorMsg.classList.remove('show');
+            successMsg.textContent = '✅ Passwords match';
+            successMsg.classList.add('show');
+        }
+    }
+
+    function validateNewPassword(input) {
+        const value = input.value;
+        const strengthBar = document.getElementById('newPasswordStrength');
+        const errorMsg = document.getElementById('newPasswordError');
+        const successMsg = document.getElementById('newPasswordSuccess');
+        
+        if (value.length < 6) {
+            input.classList.add('error');
+            input.classList.remove('success');
+            errorMsg.textContent = '❌ Password must be at least 6 characters';
+            errorMsg.classList.add('show');
+            successMsg.classList.remove('show');
+            strengthBar.className = 'password-strength weak';
+        } else if (value.length < 10) {
+            input.classList.remove('error');
+            input.classList.add('success');
+            errorMsg.classList.remove('show');
+            successMsg.textContent = '✅ Good password';
+            successMsg.classList.add('show');
+            strengthBar.className = 'password-strength medium';
+        } else {
+            input.classList.remove('error');
+            input.classList.add('success');
+            errorMsg.classList.remove('show');
+            successMsg.textContent = '✅ Strong password';
+            successMsg.classList.add('show');
+            strengthBar.className = 'password-strength strong';
+        }
+        validateConfirmNewPassword();
+    }
+
+    function validateConfirmNewPassword() {
+        const password = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmNewPassword').value;
+        const errorMsg = document.getElementById('confirmNewPasswordError');
+        const successMsg = document.getElementById('confirmNewPasswordSuccess');
+        const input = document.getElementById('confirmNewPassword');
+        
+        if (confirmPassword.length === 0) {
+            input.classList.remove('error', 'success');
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            input.classList.add('error');
+            input.classList.remove('success');
+            errorMsg.textContent = '❌ Passwords do not match';
+            errorMsg.classList.add('show');
+            successMsg.classList.remove('show');
+        } else {
+            input.classList.remove('error');
+            input.classList.add('success');
+            errorMsg.classList.remove('show');
+            successMsg.textContent = '✅ Passwords match';
+            successMsg.classList.add('show');
+        }
+    }
+
+    function validateLoginMobile(input) {
+        const value = input.value.replace(/\D/g, '');
+        input.value = value;
+        const errorMsg = document.getElementById('loginMobileError');
+        if (value.length > 0 && value.length < 10) {
+            input.classList.add('error');
+            errorMsg.textContent = `Need ${10 - value.length} more digit${10 - value.length > 1 ? 's' : ''}`;
+            errorMsg.classList.add('show');
+        } else {
+            input.classList.remove('error');
+            errorMsg.classList.remove('show');
+        }
+    }
+
+    // ===== COOKIE HELPERS =====
+    function setCookie(name, value, days) {
+        const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+        document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+    }
+
+    function getCookie(name) {
+        const match = document.cookie.split('; ').find(c => c.startsWith(name + '='));
+        return match ? decodeURIComponent(match.split('=')[1]) : null;
+    }
+
+    function deleteCookie(name) {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    }
+
+    // ===== LOGIN FUNCTIONS =====
+    function openLogin() {
+        document.getElementById("loginBox").style.display = "flex";
+        document.getElementById("loginMobile").value = "";
+        document.getElementById("loginPassword").value = "";
+        document.getElementById("loginMobileError").classList.remove('show');
+        document.getElementById("loginPasswordError").classList.remove('show');
+    }
+    
+    function closeLogin() {
+        document.getElementById("loginBox").style.display = "none";
+    }
+
+    async function loginWorker() {
+        const mobile = document.getElementById("loginMobile").value.trim();
+        const password = document.getElementById("loginPassword").value;
+        const mobileError = document.getElementById('loginMobileError');
+        const passwordError = document.getElementById('loginPasswordError');
+        
+        mobileError.classList.remove('show');
+        passwordError.classList.remove('show');
+        let hasError = false;
+        
+        if (mobile.length !== 10) {
+            mobileError.textContent = "❌ Please enter exactly 10 digits!";
+            mobileError.classList.add('show');
+            document.getElementById("loginMobile").classList.add('error');
+            hasError = true;
+        }
+
+        if (!password) {
+            passwordError.textContent = "❌ Please enter your password!";
+            passwordError.classList.add('show');
+            document.getElementById("loginPassword").classList.add('error');
+            hasError = true;
+        }
+
+        if (hasError) return;
+
+        try {
+            const res = await fetch("http://localhost:3000/worker-login", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                credentials: "include",
+                body: JSON.stringify({ contact: mobile, password: password })
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                localStorage.setItem("loggedInWorker", JSON.stringify({ contact: mobile }));
+                // Also store in cookie for 7 days
+                setCookie("loggedInWorker", mobile, 7);
+                setCookie("userRole", "worker", 7);
+                alert("✅ Login Successful!\nWelcome back!");
+                window.location.href = "workerDashboard.html";
+            } else {
+                alert("❌ " + result.message);
+            }
+        } catch (err) {
+            alert("❌ Server Error!\nPlease check if the server is running.");
+        }
+    }
+
+    // ===== FORGOT PASSWORD FUNCTIONS =====
+    function openForgotPassword() {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("forgotPasswordBox").style.display = "flex";
+        resetForgotPasswordForms();
+    }
+
+    function closeForgotPassword() {
+        document.getElementById("forgotPasswordBox").style.display = "none";
+        resetForgotPasswordForms();
+    }
+
+    function resetForgotPasswordForms() {
+        // Hide all forms
+        document.getElementById('recoveryMethodSelection').style.display = 'block';
+        document.getElementById('securityQuestionsForm').classList.remove('active');
+        document.getElementById('otpRecoveryForm').classList.remove('active');
+        document.getElementById('resetPasswordForm').classList.remove('active');
+        
+        // Clear all inputs
+        document.getElementById('securityMobile').value = '';
+        document.getElementById('friendName').value = '';
+        document.getElementById('schoolName').value = '';
+        document.getElementById('birthplace').value = '';
+        document.getElementById('otpMobile').value = '';
+        document.getElementById('otpCode').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmNewPassword').value = '';
+        
+        // Reset OTP section
+        document.getElementById('otpVerificationSection').style.display = 'none';
+        if (otpTimer) {
+            clearInterval(otpTimer);
+            otpTimer = null;
+        }
+    }
+
+    function selectRecoveryMethod(method) {
+        document.getElementById('recoveryMethodSelection').style.display = 'none';
+        
+        if (method === 'security') {
+            document.getElementById('securityQuestionsForm').classList.add('active');
+        } else if (method === 'otp') {
+            document.getElementById('otpRecoveryForm').classList.add('active');
+        }
+    }
+
+    function backToRecoverySelection() {
+        document.getElementById('securityQuestionsForm').classList.remove('active');
+        document.getElementById('otpRecoveryForm').classList.remove('active');
+        document.getElementById('resetPasswordForm').classList.remove('active');
+        document.getElementById('recoveryMethodSelection').style.display = 'block';
+        
+        // Stop OTP timer if running
+        if (otpTimer) {
+            clearInterval(otpTimer);
+            otpTimer = null;
+        }
+    }
+
+    // Security Questions Verification
+    async function verifySecurityQuestions() {
+        const mobile = document.getElementById('securityMobile').value.trim();
+        const friendName = document.getElementById('friendName').value.trim();
+        const schoolName = document.getElementById('schoolName').value.trim();
+        const birthplace = document.getElementById('birthplace').value.trim();
+        
+        const errorMsg = document.getElementById('securityMobileError');
+        
+        if (mobile.length !== 10) {
+            errorMsg.textContent = "❌ Please enter a valid 10-digit mobile number";
+            errorMsg.classList.add('show');
+            return;
+        }
+        
+        if (!friendName || !schoolName || !birthplace) {
+            alert("❌ Please answer all security questions!");
+            return;
+        }
+
+        try {
+            const res = await fetch("http://localhost:3000/verify-security-questions", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contact: mobile,
+                    friend_name: friendName,
+                    school_name: schoolName,
+                    birthplace: birthplace
+                })
+            });
+            
+            const result = await res.json();
+
+            if (res.ok) {
+                alert("✅ Security questions verified!\nYou can now reset your password.");
+                document.getElementById('resetMobile').value = mobile;
+                document.getElementById('securityQuestionsForm').classList.remove('active');
+                document.getElementById('resetPasswordForm').classList.add('active');
+            } else {
+                alert("❌ " + result.message);
+            }
+        } catch (err) {
+            alert("❌ Server Error!\nPlease check if the server is running.");
+            console.error(err);
+        }
+    }
+
+    // OTP Functions
+    async function sendOTP() {
+        const mobile = document.getElementById('otpMobile').value.trim();
+        const errorMsg = document.getElementById('otpMobileError');
+        
+        if (mobile.length !== 10) {
+            errorMsg.textContent = "❌ Please enter a valid 10-digit mobile number";
+            errorMsg.classList.add('show');
+            return;
+        }
+
+        try {
+            const res = await fetch("http://localhost:3000/send-otp", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contact: mobile })
+            });
+            
+            const result = await res.json();
+
+            if (res.ok) {
+                alert("✅ OTP sent successfully!\nCheck your mobile for the 6-digit code.");
+                document.getElementById('otpVerificationSection').style.display = 'block';
+                document.getElementById('sendOtpBtn').disabled = true;
+                startOTPTimer();
+            } else {
+                alert("❌ " + result.message);
+            }
+        } catch (err) {
+            alert("❌ Server Error!\nPlease check if the server is running.");
+            console.error(err);
+        }
+    }
+
+    function startOTPTimer() {
+        let timeLeft = 120; // 2 minutes
+        const timerDisplay = document.getElementById('otpTimer');
+        const resendLink = document.getElementById('resendOtpLink');
+        
+        resendLink.classList.remove('show');
+        
+        otpTimer = setInterval(() => {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `⏱️ OTP expires in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(otpTimer);
+                timerDisplay.textContent = '⚠️ OTP expired';
+                resendLink.classList.add('show');
+                document.getElementById('sendOtpBtn').disabled = false;
+            }
+            
+            timeLeft--;
+        }, 1000);
+    }
+
+    async function resendOTP() {
+        document.getElementById('otpCode').value = '';
+        await sendOTP();
+    }
+
+    async function verifyOTP() {
+        const mobile = document.getElementById('otpMobile').value.trim();
+        const otp = document.getElementById('otpCode').value.trim();
+        
+        if (otp.length !== 6) {
+            alert("❌ Please enter the complete 6-digit OTP!");
+            return;
+        }
+
+        try {
+            const res = await fetch("http://localhost:3000/verify-otp", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contact: mobile,
+                    otp: otp
+                })
+            });
+            
+            const result = await res.json();
+
+            if (res.ok) {
+                alert("✅ OTP verified successfully!\nYou can now reset your password.");
+                clearInterval(otpTimer);
+                document.getElementById('resetMobile').value = mobile;
+                document.getElementById('otpRecoveryForm').classList.remove('active');
+                document.getElementById('resetPasswordForm').classList.add('active');
+            } else {
+                alert("❌ " + result.message);
+            }
+        } catch (err) {
+            alert("❌ Server Error!\nPlease check if the server is running.");
+            console.error(err);
+        }
+    }
+
+    // Reset Password
+    async function resetPassword() {
+        const mobile = document.getElementById('resetMobile').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmNewPassword').value;
+        
+        if (newPassword.length < 6) {
+            alert("❌ Password must be at least 6 characters long!");
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            alert("❌ Passwords do not match!");
+            return;
+        }
+
+        try {
+            const res = await fetch("http://localhost:3000/reset-password", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contact: mobile,
+                    new_password: newPassword
+                })
+            });
+            
+            const result = await res.json();
+
+            if (res.ok) {
+                alert("✅ Password reset successful!\nYou can now login with your new password.");
+                closeForgotPassword();
+                openLogin();
+            } else {
+                alert("❌ " + result.message);
+            }
+        } catch (err) {
+            alert("❌ Server Error!\nPlease check if the server is running.");
+            console.error(err);
+        }
+    }
+
+    // ===== FORM SUBMISSION ===== 
+    document.getElementById("regForm").onsubmit = async (e) => {
+        e.preventDefault();
+        
+        const contact = document.getElementById("contact").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        const friendName = document.getElementById("friend_name").value.trim();
+        const schoolName = document.getElementById("school_name").value.trim();
+        const birthplaceValue = document.getElementById("birthplace_reg").value.trim();
+        const areaValue = document.getElementById("areaValue").value;
+        
+        // Validation
+        if (contact.length !== 10 || !/^\d{10}$/.test(contact)) {
+            alert("❌ Mobile Number Error!\n\nPlease enter exactly 10 digits.");
+            document.getElementById("contact").focus();
+            return;
+        }
+
+        if (password.length < 6) {
+            alert("❌ Password Error!\n\nPassword must be at least 6 characters long.");
+            document.getElementById("password").focus();
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            alert("❌ Password Mismatch!\n\nPasswords do not match. Please check again.");
+            document.getElementById("confirmPassword").focus();
+            return;
+        }
+
+        // Validate security questions
+        if (!friendName || friendName.length < 2) {
+            alert("❌ Security Question Error!\n\nPlease enter your childhood best friend's name.");
+            document.getElementById("friend_name").focus();
+            return;
+        }
+
+        if (!schoolName || schoolName.length < 2) {
+            alert("❌ Security Question Error!\n\nPlease enter your primary school name.");
+            document.getElementById("school_name").focus();
+            return;
+        }
+
+        if (!birthplaceValue || birthplaceValue.length < 2) {
+            alert("❌ Security Question Error!\n\nPlease enter your birthplace.");
+            document.getElementById("birthplace_reg").focus();
+            return;
+        }
+
+        if (!areaValue) {
+            alert("❌ Location Error!\n\nPlease select your area/locality.");
+            document.getElementById("areaInput").focus();
+            return;
+        }
+
+        const formData = {
+            worker_name: document.getElementById("name").value,
+            contact: contact,
+            father_name: document.getElementById("father").value,
+            mother_name: document.getElementById("mother").value,
+            password: password,
+            experience: document.getElementById("experience").value,
+            state: document.getElementById("stateValue").value,
+            city: document.getElementById("cityValue").value,
+            area: areaValue,
+            work_type: document.getElementById("workValue").value,
+            other_work: document.getElementById("otherWork").value,
+            latitude: document.getElementById("latitude").value || null,
+            longitude: document.getElementById("longitude").value || null,
+            friend_name: friendName,
+            school_name: schoolName,
+            birthplace: birthplaceValue
+        };
+
+        console.log("📤 Sending registration data:", formData);
+
+        try {
+            const res = await fetch("http://localhost:3000/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData)
+            });
+            
+            const result = await res.json();
+            
+            if(res.ok) {
+                localStorage.setItem("loggedInWorker", JSON.stringify({
+                    contact: formData.contact
+                }));
+                setCookie("loggedInWorker", formData.contact, 7);
+                setCookie("userRole", "worker", 7);
+
+                alert("✅ Registration Successful!\n\nWelcome to Quick Kaam, " + formData.worker_name + "!");
+                window.location.href = "workerDashboard.html";
+            } else {
+                alert("❌ Registration Failed!\n\n" + result.message);
+                console.error("Server error response:", result);
+            }
+        } catch(err) {
+            alert("❌ Connection Error!\n\nPlease ensure:\n• Node server is running\n• Server is on port 3000");
+            console.error("Error:", err);
+        }
+    };
+</script>
+<script src="translations.js"></script>
+</body>
+</html>

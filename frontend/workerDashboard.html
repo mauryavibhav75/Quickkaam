@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Dashboard | QuickKaam</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Manrope:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root { 
+            --primary: #ff9933;
+            --primary-dark: #ff7700;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --glass: rgba(255, 255, 255, 0.12);
+            --dark: #1a1a1a;
+        }
+        
+        * { 
+            margin:0; 
+            padding:0; 
+            box-sizing:border-box; 
+            font-family:'Manrope',sans-serif; 
+        }
+
+        body {
+            display:flex;
+            min-height:100vh;
+            background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), 
+                        url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color:white;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            width:280px;
+            background:rgba(26, 26, 26, 0.85);
+            backdrop-filter:blur(15px);
+            -webkit-backdrop-filter:blur(15px);
+            padding:30px 20px;
+            display:flex;
+            flex-direction:column;
+            border-right: 2px solid rgba(255, 153, 51, 0.3);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar.mobile-hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar h2 {
+            font-family: 'Space Mono', monospace;
+            color:var(--primary);
+            text-align:center;
+            margin-bottom:40px;
+            letter-spacing:2px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .nav-btn {
+            background:var(--glass);
+            border:1px solid rgba(255, 153, 51, 0.2);
+            color:white;
+            padding:15px;
+            text-align:left;
+            cursor:pointer;
+            border-radius:12px;
+            margin-bottom:8px;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .nav-btn.active,
+        .nav-btn:hover {
+            background:var(--primary);
+            border-color:var(--primary);
+            color:white;
+            font-weight:600;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(255, 153, 51, 0.4);
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .logout-btn:hover {
+            background: var(--danger) !important;
+            color: white !important;
+            border-color: var(--danger) !important;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: var(--primary);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px rgba(255, 153, 51, 0.4);
+        }
+
+        .main-content {
+            flex:1;
+            padding:40px;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .content-card {
+            background:var(--glass);
+            backdrop-filter:blur(15px);
+            -webkit-backdrop-filter:blur(15px);
+            padding:35px;
+            border-radius:20px;
+            border:2px solid rgba(255, 153, 51, 0.3);
+            display:none;
+            animation:slideIn .4s ease-out;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .content-card.active { 
+            display:block; 
+        }
+
+        .profile-container {
+            display:flex;
+            justify-content:space-between;
+            gap: 30px;
+        }
+
+        .side-menu {
+            border-left:2px solid rgba(255, 153, 51, 0.3);
+            padding-left:20px;
+            min-width: 200px;
+        }
+
+        .side-link {
+            display:block;
+            color:#ccc;
+            margin-bottom:15px;
+            cursor:pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: 0.3s;
+            background: var(--glass);
+            border: 1px solid rgba(255, 153, 51, 0.2);
+        }
+
+        .side-link:hover { 
+            color:var(--primary);
+            background: rgba(255, 153, 51, 0.2);
+            padding-left: 15px;
+            border-color: var(--primary);
+        }
+
+        .action-btn {
+            background:var(--primary);
+            border:none;
+            padding:12px 20px;
+            border-radius:8px;
+            font-weight:600;
+            cursor:pointer;
+            margin-top:15px;
+            transition: 0.3s;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(255, 153, 51, 0.3);
+        }
+
+        .action-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 153, 51, 0.5);
+        }
+
+        .notif-box {
+            background:var(--glass);
+            backdrop-filter:blur(15px);
+            -webkit-backdrop-filter:blur(15px);
+            padding:24px;
+            border-radius:15px;
+            margin-bottom:20px;
+            border:2px solid rgba(255, 153, 51, 0.2);
+            transition: 0.3s;
+        }
+
+        .notif-box:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(255, 153, 51, 0.3);
+        }
+
+        .notif-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 153, 51, 0.2);
+        }
+
+        .ticket-info {
+            margin: 10px 0;
+            font-size: 0.95rem;
+        }
+
+        .ticket-info strong {
+            color: var(--primary);
+            margin-right: 8px;
+        }
+
+        .user-contact {
+            background: rgba(255, 153, 51, 0.1);
+            border: 1px solid rgba(255, 153, 51, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .user-contact h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .accept-btn {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .accept-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .accept-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .reject-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 14px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .reject-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .status-badge {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .status-accepted {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .status-completed {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+        }
+
+        .refresh-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 153, 51, 0.3);
+        }
+
+        .refresh-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 153, 51, 0.5);
+        }
+
+        .no-tickets {
+            text-align: center;
+            padding: 60px 20px;
+            opacity: 0.6;
+            font-size: 1.1rem;
+        }
+
+        .terms-section h3 {
+            color: var(--primary);
+            margin-bottom: 25px;
+            font-size: 2rem;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .terms-intro {
+            background: rgba(255, 153, 51, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .term-item {
+            background: var(--glass);
+            border: 1px solid rgba(255, 153, 51, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .term-item:hover {
+            background: rgba(255, 153, 51, 0.08);
+            border-color: rgba(255, 153, 51, 0.3);
+            transform: translateX(5px);
+        }
+
+        .term-item h4 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .term-number {
+            background: var(--primary);
+            color: var(--dark);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .term-item ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .term-item li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .disclaimer-box {
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .disclaimer-box h4 {
+            color: var(--danger);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        @keyframes slideIn {
+            from {opacity:0; transform:translateX(30px);}
+            to {opacity:1; transform:translateX(0);}
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 280px;
+            }
+
+            .sidebar.mobile-hidden {
+                transform: translateX(-100%);
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 80px 20px 20px 20px;
+            }
+
+            .profile-container {
+                flex-direction: column;
+            }
+
+            .side-menu {
+                border-left: none;
+                border-top: 2px solid rgba(255, 153, 51, 0.3);
+                padding-left: 0;
+                padding-top: 20px;
+            }
+
+            .user-contact {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Mobile Menu Toggle -->
+<button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <h2>QuickKaam</h2>
+    <button class="nav-btn active" onclick="showSec('profile-sec',this)">
+        <span>👤</span> <span data-lang-key="nav-profile">Profile</span>
+    </button>
+    <button class="nav-btn" onclick="showSec('notifications-sec',this)">
+        <span>🔔</span> <span data-lang-key="nav-notifications">Notifications</span>
+    </button>
+    <button class="nav-btn" onclick="showSec('accepted-sec',this)">
+        <span>✅</span> <span data-lang-key="nav-accepted">Accepted Work</span>
+    </button>
+    <button class="nav-btn" onclick="showSec('history-sec',this)">
+        <span>📚</span> <span data-lang-key="nav-history">Work History</span>
+    </button>
+    <button class="nav-btn" onclick="showSec('terms-sec',this)">
+        <span>📋</span> <span data-lang-key="nav-terms">Terms & Conditions</span>
+    </button>
+
+    <button class="nav-btn logout-btn" onclick="logout()">
+        <span>🚪</span> <span data-lang-key="btn-logout">Logout</span>
+    </button>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+
+<!-- PROFILE SECTION -->
+<div id="profile-sec" class="content-card active">
+    <div class="profile-container">
+        <div style="flex: 1;">
+            <h3 style="font-size: 2rem; margin-bottom: 10px;"><span data-lang-key="worker-welcome">Welcome,</span> <span id="dispWorkerName" style="color: var(--primary);">Worker</span></h3>
+            <div style="background: var(--glass); padding: 20px; border-radius: 15px; border: 1px solid rgba(255, 153, 51, 0.2); margin-top: 20px;">
+                <p style="margin-bottom: 12px; font-size: 1.1rem;">
+                    <strong style="color: var(--primary);" data-lang-key="worker-city">📍 City:</strong>
+                    <span id="dispCity" style="color: #fff;">Loading...</span>
+                </p>
+                <p style="margin-bottom: 12px; font-size: 1.1rem;">
+                    <strong style="color: var(--primary);" data-lang-key="worker-work-type">🛠️ Work Type:</strong>
+                    <span id="dispWork" style="color: #fff;">Loading...</span>
+                </p>
+                <p style="font-size: 1.1rem;">
+                    <strong style="color: var(--primary);" data-lang-key="worker-contact">📞 Contact:</strong>
+                    <span id="dispContact" style="color: #fff;">Loading...</span>
+                </p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;">
+                <div style="text-align: center; padding: 20px; background: rgba(16, 185, 129, 0.1); border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--success);" id="completedCount">0</div>
+                    <div style="font-size: 0.9rem; opacity: 0.7;" data-lang-key="worker-completed-jobs">Completed Jobs</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: rgba(255, 153, 51, 0.1); border-radius: 12px; border: 1px solid rgba(255, 153, 51, 0.3);">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary);" id="avgRating">0.0</div>
+                    <div style="font-size: 0.9rem; opacity: 0.7;" data-lang-key="worker-avg-rating">Avg Rating</div>
+                </div>
+            </div>
+        </div>
+        <div class="side-menu">
+            <span class="side-link" onclick="location.href='editworkerProfile.html'" data-lang-key="btn-edit-profile">📝 Edit Profile</span>
+            <button class="action-btn" style="background:#ff4444;color:white" onclick="deactivateAccount()" data-lang-key="btn-deactivate">
+                ⚠️ Deactivate Account
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- NOTIFICATIONS SECTION -->
+<div id="notifications-sec" class="content-card">
+    <h3 style="font-size: 1.8rem; margin-bottom: 10px;" data-lang-key="notifications-title">Service Request Notifications</h3>
+    <p style="color:var(--primary);font-size:.85rem; margin-bottom: 20px;" data-lang-key="notifications-subtitle">
+        New service requests from users
+    </p>
+    <button class="refresh-btn" onclick="refreshNotifications()" data-lang-key="btn-refresh">🔄 Refresh Notifications</button>
+    <div id="notificationList">
+        <div class="no-tickets">Loading notifications...</div>
+    </div>
+</div>
+
+<!-- ACCEPTED WORK SECTION -->
+<div id="accepted-sec" class="content-card">
+    <h3 style="font-size: 1.8rem; margin-bottom: 10px;" data-lang-key="accepted-title">My Accepted Work</h3>
+    <p style="color:var(--success);font-size:.85rem; margin-bottom: 20px;" data-lang-key="accepted-subtitle">
+        Jobs you have accepted and are currently working on
+    </p>
+    <button class="refresh-btn" onclick="loadAcceptedWork()" data-lang-key="btn-refresh">🔄 Refresh</button>
+    <div id="acceptedContainer">
+        <div class="no-tickets">Loading your accepted work...</div>
+    </div>
+</div>
+
+<!-- WORK HISTORY SECTION -->
+<div id="history-sec" class="content-card">
+    <h3 style="font-size: 1.8rem; margin-bottom: 10px;" data-lang-key="history-title">My Work History</h3>
+    <p style="color:var(--primary);font-size:.85rem; margin-bottom: 20px;" data-lang-key="history-subtitle">
+        All your completed jobs with ratings
+    </p>
+    <button class="refresh-btn" onclick="loadWorkHistory()" data-lang-key="btn-refresh">🔄 Refresh</button>
+    <div id="historyContainer">
+        <div class="no-tickets">Loading your work history...</div>
+    </div>
+</div>
+
+<!-- TERMS & CONDITIONS SECTION -->
+<div id="terms-sec" class="content-card">
+    <div class="terms-section">
+        <h3 data-lang-key="terms-worker-title">📋 Terms & Conditions for Workers</h3>
+        
+        <div class="terms-intro">
+            <strong>Welcome to QuickKaam Worker Platform!</strong><br>
+            By registering and using this platform, you agree to comply with the following terms and conditions. Please read them carefully before accepting any service requests.
+        </div>
+
+        <div class="term-item">
+            <h4><span class="term-number">1</span> Platform Role</h4>
+            <p>QuickKaam operates solely as a connecting platform between workers and service seekers. We do not employ workers, control work execution, or dictate how services should be performed. Workers operate independently and are not employees or agents of QuickKaam.</p>
+        </div>
+
+        <div class="term-item">
+            <h4><span class="term-number">2</span> Worker Responsibilities</h4>
+            <ul>
+                <li>Provide accurate, truthful, and up-to-date personal and professional information during registration.</li>
+                <li>Perform all accepted work with honesty, professionalism, and adherence to safety standards.</li>
+                <li>Communicate clearly with users regarding work scope, timeline, and any expected charges before commencing work.</li>
+                <li>Maintain ethical conduct and respect user privacy at all times.</li>
+            </ul>
+        </div>
+
+        <div class="term-item">
+            <h4><span class="term-number">3</span> Payments & Charges</h4>
+            <p><strong>Important:</strong> QuickKaam does not process, manage, or guarantee any payments. All payment arrangements are the sole responsibility of workers and users.</p>
+            <ul>
+                <li>Workers must discuss and agree upon payment amount, mode, and timing directly with the user before starting work.</li>
+                <li>Any payment disputes must be resolved directly between the worker and the user.</li>
+                <li>QuickKaam will not mediate, intervene, or take responsibility for payment-related issues.</li>
+            </ul>
+        </div>
+
+        <div class="term-item">
+            <h4><span class="term-number">4</span> Work Execution & Responsibility</h4>
+            <p>Workers are fully and independently responsible for:</p>
+            <ul>
+                <li>Proper execution and completion of accepted work.</li>
+                <li>Providing their own tools, materials, and equipment unless otherwise agreed with the user.</li>
+                <li>Ensuring safety standards and quality of work performed.</li>
+                <li>Any damage, injury, or loss arising during or from the execution of work.</li>
+            </ul>
+            <p>QuickKaam does not monitor, supervise, or track work progress or quality.</p>
+        </div>
+
+        <div class="term-item">
+            <h4><span class="term-number">5</span> Request Acceptance Policy</h4>
+            <ul>
+                <li>Workers have full discretion to accept or reject any service request based on their availability and capability.</li>
+                <li>Once a request is accepted, the worker is obligated to communicate promptly with the user and make a genuine effort to complete the work.</li>
+                <li>Repeated acceptance and abandonment of requests may result in account suspension or termination.</li>
+            </ul>
+        </div>
+
+        <div class="term-item">
+            <h4><span class="term-number">6</span> User Information & Privacy</h4>
+            <ul>
+                <li>Workers receive user contact details and location information strictly for work-related communication and service delivery.</li>
+                <li>Misuse of user information for purposes other than the accepted service request is strictly prohibited.</li>
+                <li>Violations may result in immediate account suspension and potential legal action.</li>
+            </ul>
+        </div>
+
+        <div class="disclaimer-box">
+            <h4>⚠️ Liability Disclaimer</h4>
+            <p><strong>QuickKaam is NOT responsible for:</strong></p>
+            <ul>
+                <li>Non-payment or delayed payment by users.</li>
+                <li>Work-related accidents, injuries, damages, or losses.</li>
+                <li>Miscommunication, misunderstandings, or disputes between workers and users.</li>
+                <li>Quality, safety, or legality of work performed by workers.</li>
+                <li>Any legal liabilities arising from work execution or worker-user interactions.</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Workers operate at their own risk and are solely responsible for all aspects of their service delivery.</strong></p>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding: 20px; background: rgba(255, 153, 51, 0.1); border-radius: 10px;">
+            <p style="font-size: 0.95rem; line-height: 1.6;">
+                By using the QuickKaam platform, you acknowledge that you have read, understood, and agree to abide by these Terms & Conditions.<br>
+                <strong style="color: var(--primary);">Last Updated: January 2026</strong>
+            </p>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// COOKIE HELPERS
+function getCookie(name) {
+    const match = document.cookie.split('; ').find(c => c.startsWith(name + '='));
+    return match ? decodeURIComponent(match.split('=')[1]) : null;
+}
+function deleteCookie(name) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+}
+
+// SESSION CHECK
+let sessionData = localStorage.getItem("loggedInWorker");
+if (!sessionData) {
+    // Fallback to cookie if localStorage was cleared
+    const cookieContact = getCookie("loggedInWorker");
+    if (cookieContact) {
+        sessionData = JSON.stringify({ contact: cookieContact });
+        localStorage.setItem("loggedInWorker", sessionData);
+    } else {
+        alert("No active session found. Please login.");
+        window.location.href = "worker.html";
+    }
+}
+const loggedInWorker = JSON.parse(sessionData);
+
+// INITIALIZE DASHBOARD
+window.onload = () => {
+    fetchWorkerProfile();
+};
+
+// Toggle Mobile Menu
+function toggleMobileMenu() {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("mobile-hidden");
+}
+
+// ============================================================================
+// FIXED: FETCH WORKER PROFILE - Proper handling of average_rating
+// ============================================================================
+async function fetchWorkerProfile() {
+    try {
+        const res = await fetch("http://localhost:3000/worker-profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contact: loggedInWorker.contact })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            // Set basic info with fallbacks
+            document.getElementById("dispWorkerName").innerText = data.worker_name || "Worker";
+            document.getElementById("dispCity").innerText = data.city || "Not set";
+            document.getElementById("dispWork").innerText = data.work_type || "Not set";
+            document.getElementById("dispContact").innerText = data.contact || "Not set";
+            
+            // ✅ FIX: Properly handle completed jobs count
+            const completedJobs = parseInt(data.completed_jobs) || 0;
+            document.getElementById("completedCount").innerText = completedJobs;
+            
+            // ✅ FIX: Properly handle average rating with type checking
+            let avgRating = 0;
+            
+            // Convert to number and check if it's valid
+            if (data.average_rating !== null && data.average_rating !== undefined) {
+                avgRating = parseFloat(data.average_rating);
+                
+                // If parseFloat returns NaN, default to 0
+                if (isNaN(avgRating)) {
+                    avgRating = 0;
+                }
+            }
+            
+            // Display with one decimal place
+            document.getElementById("avgRating").innerText = avgRating.toFixed(1);
+
+            // Save to localStorage
+            localStorage.setItem("loggedInWorker", JSON.stringify(data));
+            
+            // Load notifications after profile is loaded
+            loadNotifications();
+        } else {
+            alert("Error: " + data.message);
+        }
+    } catch (err) {
+        console.error("Dashboard Fetch Error:", err);
+        document.getElementById("dispCity").innerText = "Error loading";
+        document.getElementById("dispWork").innerText = "Error loading";
+        document.getElementById("avgRating").innerText = "0.0";
+    }
+}
+
+// LOAD NOTIFICATIONS
+async function loadNotifications() {
+    const worker = JSON.parse(localStorage.getItem("loggedInWorker"));
+    const listDiv = document.getElementById("notificationList");
+    
+    listDiv.innerHTML = '<div class="no-tickets">Loading notifications...</div>';
+    
+    try {
+        const res = await fetch(`http://localhost:3000/worker-notifications?worker_contact=${encodeURIComponent(worker.contact)}`);
+        
+        if (!res.ok) {
+            const errorData = await res.json();
+            console.error("Server error:", errorData);
+            listDiv.innerHTML = `<div class='no-tickets'>❌ ${errorData.message || 'Error loading notifications'}</div>`;
+            return;
+        }
+        
+        const requests = await res.json();
+
+        if (!Array.isArray(requests)) {
+            console.error("Invalid response format:", requests);
+            listDiv.innerHTML = "<div class='no-tickets'>❌ Invalid response from server</div>";
+            return;
+        }
+
+        if (requests.length === 0) {
+            listDiv.innerHTML = "<div class='no-tickets'>📭 No new service requests.<br>You'll be notified when users send you work requests!</div>";
+            return;
+        }
+
+        listDiv.innerHTML = requests.map(req => `
+            <div class="notif-box">
+                <div class="notif-header">
+                    <b style="color:var(--primary); font-size: 1.1rem;">Request #${req.id}</b>
+                    <small style="opacity:0.7">${new Date(req.created_at).toLocaleDateString()}</small>
+                </div>
+
+                <div class="user-contact">
+                    <h4>👤 Customer Details</h4>
+                    <div class="ticket-info">
+                        <strong>Name:</strong> ${req.user_name || 'Not provided'}
+                    </div>
+                    <div class="ticket-info">
+                        <strong>Mobile:</strong> <a href="tel:${req.mobile_number}" style="color: var(--success); text-decoration: none;">${req.mobile_number}</a>
+                    </div>
+                    <div class="ticket-info">
+                        <strong>Location:</strong> ${req.city || ''}, ${req.state || ''}
+                    </div>
+                </div>
+
+                <div class="ticket-info">
+                    <strong>Work Type:</strong> ${req.work_type}
+                </div>
+                <div class="ticket-info">
+                    <strong>Problem Description:</strong>
+                    <p style="margin-top: 5px; line-height: 1.6; opacity: 0.9;">${req.problem_description}</p>
+                </div>
+
+                <button class="accept-btn" onclick="acceptRequest(${req.id})" id="accept-btn-${req.id}">
+                    ✅ Accept This Request
+                </button>
+                <button class="reject-btn" onclick="rejectRequest(${req.id})" id="reject-btn-${req.id}">
+                    ❌ Decline Request
+                </button>
+            </div>
+        `).join('');
+    } catch (err) {
+        console.error("Error loading notifications:", err);
+        listDiv.innerHTML = "<div class='no-tickets'>❌ Unable to load notifications. Please check your connection.</div>";
+    }
+}
+
+async function refreshNotifications() {
+    await loadNotifications();
+}
+
+// ============================================================================
+// UPDATED: Accept Request - now only sends worker_mobile
+// The server will fetch complete worker details from workers table
+// ============================================================================
+async function acceptRequest(requestId) {
+    const worker = JSON.parse(localStorage.getItem("loggedInWorker"));
+    const btn = document.getElementById(`accept-btn-${requestId}`);
+    const rejectBtn = document.getElementById(`reject-btn-${requestId}`);
+    
+    btn.disabled = true;
+    rejectBtn.disabled = true;
+    btn.innerText = "⏳ Processing...";
+
+    const confirmAccept = confirm("Do you want to accept this service request?\n\nThis will notify the user and add the work to your accepted jobs.");
+
+    if (!confirmAccept) {
+        btn.disabled = false;
+        rejectBtn.disabled = false;
+        btn.innerText = "✅ Accept This Request";
+        return;
+    }
+
+    try {
+        // ✅ UPDATED: Only send worker_mobile
+        // Server will fetch complete worker details from workers table
+        const res = await fetch("http://localhost:3000/worker-accept-request", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                request_id: requestId,
+                worker_mobile: worker.contact
+            })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            alert(`✅ ${result.message}`);
+            await refreshNotifications();
+            await loadAcceptedWork();
+            showSec('accepted-sec', document.querySelector('.nav-btn[onclick*="accepted-sec"]'));
+        } else {
+            alert(`❌ ${result.message}`);
+            btn.disabled = false;
+            rejectBtn.disabled = false;
+            btn.innerText = "✅ Accept This Request";
+        }
+    } catch (err) {
+        console.error("Error accepting request:", err);
+        alert("⚠️ Server error! Please try again.");
+        btn.disabled = false;
+        rejectBtn.disabled = false;
+        btn.innerText = "✅ Accept This Request";
+    }
+}
+
+async function rejectRequest(requestId) {
+    const confirmReject = confirm("Are you sure you want to decline this request?\n\nThe user will be notified.");
+
+    if (!confirmReject) return;
+
+    try {
+        const res = await fetch("http://localhost:3000/worker-reject-request", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ request_id: requestId })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            alert(`✅ ${result.message}`);
+            await refreshNotifications();
+        } else {
+            alert(`❌ ${result.message}`);
+        }
+    } catch (err) {
+        console.error("Error rejecting request:", err);
+        alert("⚠️ Server error! Please try again.");
+    }
+}
+
+async function loadAcceptedWork() {
+    const worker = JSON.parse(localStorage.getItem("loggedInWorker"));
+    const container = document.getElementById("acceptedContainer");
+    
+    container.innerHTML = '<div class="no-tickets">Loading your accepted work...</div>';
+
+    try {
+        const res = await fetch(`http://localhost:3000/worker-accepted-work?worker_mobile=${encodeURIComponent(worker.contact)}`);
+        
+        if (!res.ok) throw new Error("Failed to load accepted work");
+        
+        const jobs = await res.json();
+        
+        if (jobs.length === 0) {
+            container.innerHTML = '<div class="no-tickets">📋 No accepted work yet.<br>Accept requests from the Notifications section!</div>';
+            return;
+        }
+
+        let html = '';
+        jobs.forEach(job => {
+            const acceptedDate = new Date(job.accepted_at).toLocaleString();
+
+            html += `
+                <div class="notif-box">
+                    <div class="notif-header">
+                        <div style="font-size: 1.1rem; font-weight: 600;">Job #${job.id}</div>
+                        <div class="status-badge status-accepted">Accepted</div>
+                    </div>
+                    
+                    <div class="user-contact">
+                        <h4>👤 Customer Details</h4>
+                        <div class="ticket-info">
+                            <strong>Name:</strong> ${job.user_name || 'Not provided'}
+                        </div>
+                        <div class="ticket-info">
+                            <strong>Mobile:</strong> <a href="tel:${job.mobile_number}" style="color: var(--success); text-decoration: none; font-weight: 600;">${job.mobile_number}</a>
+                        </div>
+                    </div>
+
+                    <div class="ticket-info">
+                        <strong>Work Type:</strong> ${job.work_type}
+                    </div>
+                    <div class="ticket-info">
+                        <strong>Problem:</strong> ${job.problem_description}
+                    </div>
+                    <div class="ticket-info" style="opacity: 0.7; font-size: 0.85rem; margin-top: 10px;">
+                        <strong>Accepted on:</strong> ${acceptedDate}
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    } catch (err) {
+        console.error("Error loading accepted work:", err);
+        container.innerHTML = '<div class="no-tickets">❌ Error loading accepted work. Please try again.</div>';
+    }
+}
+
+async function loadWorkHistory() {
+    const worker = JSON.parse(localStorage.getItem("loggedInWorker"));
+    const container = document.getElementById("historyContainer");
+    
+    container.innerHTML = '<div class="no-tickets">Loading your work history...</div>';
+
+    try {
+        const res = await fetch(`http://localhost:3000/worker-history?worker_mobile=${encodeURIComponent(worker.contact)}`);
+        
+        if (!res.ok) throw new Error("Failed to load history");
+        
+        const history = await res.json();
+        
+        if (history.length === 0) {
+            container.innerHTML = '<div class="no-tickets">📋 No completed jobs yet.<br>Complete your accepted work to build your history!</div>';
+            return;
+        }
+
+        let html = '';
+        history.forEach(job => {
+            const completedDate = new Date(job.completed_at).toLocaleString();
+            const rating = parseInt(job.rating) || 0;
+            const stars = rating > 0 ? '⭐'.repeat(rating) : 'No rating';
+
+            html += `
+                <div class="notif-box">
+                    <div class="notif-header">
+                        <div style="font-size: 1.1rem; font-weight: 600;">Job #${job.id}</div>
+                        <div class="status-badge status-completed">Completed</div>
+                    </div>
+                    
+                    <div class="ticket-info">
+                        <strong>Work Type:</strong> ${job.work_type}
+                    </div>
+                    <div class="ticket-info">
+                        <strong>Description:</strong> ${job.problem_description}
+                    </div>
+                    <div class="ticket-info">
+                        <strong>Customer:</strong> ${job.user_name || 'Not provided'}
+                    </div>
+                    <div class="ticket-info">
+                        <strong>Rating Received:</strong> <span style="font-size: 1.2rem;">${stars}</span>
+                    </div>
+                    <div class="ticket-info" style="opacity: 0.7; font-size: 0.85rem;">
+                        <strong>Completed on:</strong> ${completedDate}
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    } catch (err) {
+        console.error("Error loading history:", err);
+        container.innerHTML = '<div class="no-tickets">❌ Error loading history. Please try again.</div>';
+    }
+}
+
+async function deactivateAccount() {
+    const contact = loggedInWorker.contact;
+
+    const userConfirmed = confirm(
+        "ARE YOU SURE?\n\nYour account will be deactivated immediately.\nYou will have 1 hour to change your mind before it is PERMANENTLY deleted."
+    );
+
+    if (userConfirmed) {
+        try {
+            const res = await fetch("http://localhost:3000/worker-schedule-deactivation", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contact: contact })
+            });
+
+            if (res.ok) {
+                const result = await res.json();
+                alert(result.message);
+                localStorage.removeItem("loggedInWorker");
+                window.location.href = "home.html"; 
+            }
+        } catch (err) {
+            alert("Server connection failed.");
+        }
+    }
+}
+
+function showSec(id, btn) {
+    if (window.innerWidth <= 768) {
+        document.getElementById("sidebar").classList.add("mobile-hidden");
+    }
+
+    document.querySelectorAll('.content-card').forEach(c => c.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    
+    if (id === 'accepted-sec') {
+        loadAcceptedWork();
+    } else if (id === 'notifications-sec') {
+        refreshNotifications();
+    } else if (id === 'history-sec') {
+        loadWorkHistory();
+    }
+}
+
+function logout() {
+    if (confirm("Are you sure you want to logout?")) {
+        localStorage.removeItem("loggedInWorker");
+        deleteCookie("loggedInWorker");
+        deleteCookie("userRole");
+        window.location.href = "home.html";
+    }
+}
+
+</script>
+<script src="translations.js"></script>
+</body>
+</html>

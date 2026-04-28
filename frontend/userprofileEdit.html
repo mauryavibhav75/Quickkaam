@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickKaam | Edit Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Manrope:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --primary: #ff9933;
+            --primary-dark: #ff7700;
+            --accent: #f59e0b;
+            --glass: rgba(255, 255, 255, 0.1); 
+            --dark: #1a1a1a;
+        }
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Manrope', sans-serif; 
+        }
+        
+        body {
+            display: flex; 
+            min-height: 100vh; 
+            overflow-x: hidden;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px; 
+            background: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(15px);
+            border-right: 2px solid rgba(255, 153, 51, 0.3); 
+            display: flex; 
+            flex-direction: column; 
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar.mobile-hidden {
+            transform: translateX(-100%);
+        }
+        
+        .sidebar h2 { 
+            font-family: 'Space Mono', monospace;
+            color: var(--primary); 
+            margin-bottom: 40px; 
+            text-align: center; 
+            font-weight: 800; 
+            letter-spacing: 2px; 
+            font-size: 1.8rem;
+            text-transform: uppercase;
+        }
+        
+        .nav-btn {
+            background: var(--glass); 
+            border: 1px solid rgba(255, 153, 51, 0.2); 
+            color: white; 
+            padding: 15px; 
+            text-align: left;
+            font-size: 0.95rem; 
+            cursor: pointer; 
+            border-radius: 12px; 
+            margin-bottom: 8px; 
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-btn:hover { 
+            background: var(--primary); 
+            color: white; 
+            font-weight: 600; 
+            transform: translateX(5px);
+        }
+        
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: var(--primary);
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px rgba(255, 153, 51, 0.4);
+        }
+        
+        /* Main Content */
+        .main-content { 
+            flex: 1; 
+            padding: 40px;
+            margin-left: 280px;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            transition: margin-left 0.3s ease;
+        }
+        
+        /* Edit Card - Responsive Container */
+        .edit-card { 
+            background: var(--glass); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px; 
+            border-radius: 25px; 
+            border: 2px solid rgba(255, 153, 51, 0.3); 
+            width: 100%; 
+            max-width: 600px;
+            animation: slideUp 0.6s ease-out;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .edit-card h2 {
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+        
+        /* Form Grid - Responsive */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .input-group { 
+            display: flex; 
+            flex-direction: column;
+        }
+        
+        label { 
+            font-size: 0.85rem; 
+            color: var(--primary); 
+            margin-bottom: 8px; 
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        input { 
+            background: rgba(255, 255, 255, 0.08); 
+            border: 1px solid rgba(255,255,255,0.2); 
+            padding: 15px; 
+            border-radius: 12px; 
+            color: white; 
+            outline: none; 
+            transition: 0.3s;
+            font-size: 1rem;
+        }
+        
+        input:focus { 
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 3px rgba(255, 153, 51, 0.2);
+        }
+        
+        input[readonly] { 
+            opacity: 0.6; 
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Button Container - NEW */
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .submit-btn { 
+            background: var(--primary); 
+            color: white; 
+            font-weight: 700; 
+            padding: 18px; 
+            border: none; 
+            border-radius: 12px; 
+            flex: 1;
+            cursor: pointer; 
+            text-transform: uppercase;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 153, 51, 0.3);
+        }
+        
+        .submit-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 153, 51, 0.5);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Cancel Button - NEW */
+        .cancel-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-weight: 700;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            flex: 1;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .cancel-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .cancel-btn:active {
+            transform: translateY(0);
+        }
+        
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(40px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        /* Tablet Responsiveness (768px - 1024px) */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .edit-card {
+                max-width: 550px;
+                padding: 35px;
+            }
+        }
+        
+        /* Mobile Responsiveness (up to 768px) */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 280px;
+            }
+            
+            .sidebar.mobile-hidden {
+                transform: translateX(-100%);
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 100px 20px 40px 20px;
+            }
+            
+            .edit-card {
+                padding: 30px 20px;
+                max-width: 100%;
+                border-radius: 20px;
+            }
+            
+            .edit-card h2 {
+                font-size: 1.5rem;
+                margin-bottom: 25px;
+            }
+            
+            .form-grid {
+                gap: 18px;
+            }
+            
+            input {
+                padding: 14px;
+                font-size: 0.95rem;
+            }
+            
+            label {
+                font-size: 0.8rem;
+            }
+            
+            /* Stack buttons vertically on mobile */
+            .btn-container {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .submit-btn, .cancel-btn {
+                padding: 16px;
+                font-size: 0.95rem;
+            }
+        }
+        
+        /* Small Mobile (up to 480px) */
+        @media (max-width: 480px) {
+            .edit-card {
+                padding: 25px 15px;
+            }
+            
+            .edit-card h2 {
+                font-size: 1.3rem;
+            }
+            
+            input {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+            
+            .submit-btn, .cancel-btn {
+                padding: 14px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h2><span style="color: white;">Quick</span><span style="color: #ff9933;">Kaam</span></h2>
+        <button class="nav-btn" onclick="location.href='userDashboard.html'">
+            <span>←</span> Back to Dashboard
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="edit-card">
+            <h2>Edit Profile</h2>
+            <form id="updateProfileForm">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Email ID</label>
+                        <input type="email" id="userEmail" readonly>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <input type="text" id="newName" placeholder="Enter your full name" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Mobile Number</label>
+                        <input type="tel" id="newMobile" maxlength="10" placeholder="Enter 10-digit mobile number" required pattern="[0-9]{10}">
+                    </div>
+                </div>
+
+                <!-- Button Container with Cancel and Update buttons -->
+                <div class="btn-container">
+                    <button type="button" class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+                    <button type="submit" class="submit-btn">Update Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Toggle Mobile Menu
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById("sidebar");
+            sidebar.classList.toggle("mobile-hidden");
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.add('mobile-hidden');
+                }
+            }
+        });
+
+        // Cancel Edit - Go back to dashboard
+        function cancelEdit() {
+            const confirmCancel = confirm("Are you sure you want to cancel?\n\nAny unsaved changes will be lost.");
+            
+            if (confirmCancel) {
+                window.location.href = "userDashboard.html";
+            }
+        }
+
+        function getCookie(name) {
+            const match = document.cookie.split('; ').find(c => c.startsWith(name + '='));
+            return match ? decodeURIComponent(match.split('=')[1]) : null;
+        }
+
+        // Load current user data
+        window.onload = async () => {
+            let email = localStorage.getItem("loggedInEmail");
+
+            if (!email) {
+                // Fallback to cookie if localStorage was cleared
+                email = getCookie("loggedInEmail");
+                if (email) {
+                    localStorage.setItem("loggedInEmail", email);
+                } else {
+                    alert("Session expired. Please login again.");
+                    window.location.href = "home.html";
+                    return;
+                }
+            }
+            
+            document.getElementById("userEmail").value = email;
+
+            // Fetch current user data
+            try {
+                const res = await fetch(`http://localhost:3000/user-profile?email=${encodeURIComponent(email)}`);
+                
+                if (res.ok) {
+                    const userData = await res.json();
+                    document.getElementById("newName").value = userData.name || '';
+                    document.getElementById("newMobile").value = userData.mobile || '';
+                } else {
+                    console.log("Could not fetch user data");
+                }
+            } catch (err) {
+                console.error("Error loading profile:", err);
+            }
+        };
+
+        // Handle form submission
+        document.getElementById("updateProfileForm").onsubmit = async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById("userEmail").value;
+            const name = document.getElementById("newName").value.trim();
+            const mobile = document.getElementById("newMobile").value.trim();
+
+            // Validation
+            if (!name || name.length < 2) {
+                alert("⚠️ Please enter a valid name (at least 2 characters)");
+                return;
+            }
+
+            if (!/^[0-9]{10}$/.test(mobile)) {
+                alert("⚠️ Please enter a valid 10-digit mobile number");
+                return;
+            }
+
+            const updateData = {
+                email: email,
+                name: name,
+                mobile: mobile
+            };
+
+            try {
+                const res = await fetch("http://localhost:3000/update-user", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updateData)
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    alert("✅ Profile Updated Successfully!");
+                    window.location.href = "userDashboard.html";
+                } else {
+                    alert("❌ " + result.message);
+                }
+            } catch (err) {
+                console.error("Update error:", err);
+                alert("⚠️ Server error. Please try again.");
+            }
+        };
+    </script>
+    <script src="translations.js"></script>
+</body>
+</html>

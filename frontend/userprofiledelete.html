@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill India | Deactivate Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --accent: #ff9933; --danger: #ff4444; --glass: rgba(255, 255, 255, 0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body {
+            display: flex; justify-content: center; align-items: center; height: 100vh;
+            background: linear-gradient(rgba(40, 39, 39, 0.9), rgba(0,0,0,0.9)), 
+                        url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover; color: white; overflow: hidden;
+        }
+
+        .deactivate-card { 
+            background: var(--glass); backdrop-filter: blur(25px); padding: 50px; 
+            border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.1); 
+            width: 100%; max-width: 500px; text-align: center;
+            animation: slideUp 0.6s ease-out forwards;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        h2 { color: var(--danger); font-size: 1.8rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
+        p { opacity: 0.8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 30px; }
+
+        .email-display {
+            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px;
+            border: 1px dashed var(--accent); margin-bottom: 30px; font-weight: 600; color: var(--accent);
+        }
+
+        .warning-box {
+            background: rgba(255, 68, 68, 0.1); border-left: 4px solid var(--danger);
+            padding: 15px; text-align: left; margin-bottom: 30px; font-size: 0.85rem;
+        }
+
+        .btn-group { display: flex; flex-direction: column; gap: 15px; }
+
+        .delete-btn { 
+            background: var(--danger); color: white; font-weight: 600; padding: 15px; 
+            border: none; border-radius: 12px; cursor: pointer; font-size: 1rem;
+            transition: 0.3s;
+        }
+        .delete-btn:hover { background: #cc0000; transform: scale(1.02); box-shadow: 0 5px 15px rgba(255, 68, 68, 0.3); }
+
+        .cancel-btn { 
+            background: transparent; color: white; padding: 12px; 
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 12px; cursor: pointer;
+            transition: 0.3s;
+        }
+        .cancel-btn:hover { background: rgba(255,255,255,0.1); }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="deactivate-card">
+        <h2>Deactivate Account</h2>
+        <p>We are sorry to see you go. This action is <b>permanent</b> and cannot be undone.</p>
+        
+        <div class="email-display" id="userMail">loading_user@example.com</div>
+
+        <div class="warning-box">
+            • Your profile will be deleted.<br>
+            • All raised tickets will be closed.<br>
+            • Your history will be permanently wiped.
+        </div>
+
+        <div class="btn-group">
+            <button class="delete-btn" onclick="confirmDeactivation()">Delete Everything Permanently</button>
+            <button class="cancel-btn" onclick="window.location.href='userDashboard.html'">No, Keep My Account</button>
+        </div>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            const match = document.cookie.split('; ').find(c => c.startsWith(name + '='));
+            return match ? decodeURIComponent(match.split('=')[1]) : null;
+        }
+
+        // Get the email from localStorage or cookie fallback
+        let email = localStorage.getItem("loggedInEmail") || getCookie("loggedInEmail");
+
+        if (email) {
+            if (!localStorage.getItem("loggedInEmail")) localStorage.setItem("loggedInEmail", email);
+            document.getElementById("userMail").innerText = email;
+        } else {
+            alert("Session expired. Please login again.");
+            window.location.href = "index.html";
+        }
+
+        async function confirmDeactivation() {
+            const finalConsent = confirm("Final Warning: All your data will be deleted from the Skill India database. Are you absolutely sure?");
+            
+            if (finalConsent) {
+                try {
+                    // Using your existing endpoint for deletion
+                    const res = await fetch("http://localhost:3000/logout-delete", {
+                        method: "DELETE",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email: email })
+                    });
+
+                    const result = await res.json();
+
+                    if (res.status === 200) {
+                        alert("Account successfully deleted. Hope to see you again!");
+                        localStorage.removeItem("loggedInEmail");
+                        window.location.href = "home.html";
+                    } else {
+                        alert("Error: " + result.message);
+                    }
+                } catch (err) {
+                    alert("Server error while deleting account. Please try again later.");
+                }
+            }
+        }
+    </script>
+    <script src="translations.js"></script>
+</body>
+</html>
