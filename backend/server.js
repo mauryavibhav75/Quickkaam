@@ -25,7 +25,7 @@ const db = mysql.createConnection({
     password: process.env.DB_PASSWORD || 'admin',
     database: process.env.DB_NAME || 'skill_india_db',
     port: parseInt(process.env.DB_PORT) || 3306,
-    ssl: process.env.DB_HOST ? { rejectUnauthorized: false } : false
+    ssl: process.env.DB_HOST ? 'Amazon RDS' : false
 });
 
 db.connect((err) => {
