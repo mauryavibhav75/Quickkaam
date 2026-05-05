@@ -2257,7 +2257,7 @@ setInterval(() => {
 }, 300000);
 
 app.get('/', (req, res) => {
-    res.send("✅ Skill India Server is Running Successfully!");
+    res.redirect('/home.html');
 });
 
 const PORT = process.env.PORT || 3000;
