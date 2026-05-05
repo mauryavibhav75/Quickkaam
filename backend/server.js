@@ -24,7 +24,8 @@ const db = mysql.createConnection({
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || 'admin',
     database: process.env.DB_NAME || 'skill_india_db',
-    port: parseInt(process.env.DB_PORT) || 3306
+    port: parseInt(process.env.DB_PORT) || 3306,
+    ssl: process.env.DB_HOST ? { rejectUnauthorized: false } : false
 });
 
 db.connect((err) => {
@@ -33,8 +34,10 @@ db.connect((err) => {
         return;
     }
     console.log('✅ Skill India Server Connected to MySQL Database');
-    
-    setupDatabaseColumns();
+
+    createTables(() => {
+        setupDatabaseColumns();
+    });
 });
 
 // In-memory OTP storage
@@ -77,6 +80,122 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     const distance = R * c;
     
     return distance;
+}
+
+// Auto-create all tables if they don't exist
+function createTables(callback) {
+    console.log("📋 Creating tables if not exist...");
+
+    const tables = [
+        `CREATE TABLE IF NOT EXISTS \`users\` (
+            \`id\` int(11) NOT NULL AUTO_INCREMENT,
+            \`full_name\` varchar(100) NOT NULL,
+            \`email_id\` varchar(100) NOT NULL,
+            \`mobile_no\` varchar(15) NOT NULL,
+            \`password\` varchar(255) NOT NULL,
+            \`state_name\` varchar(100) NOT NULL,
+            \`city_name\` varchar(100) NOT NULL,
+            \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            \`status\` varchar(20) DEFAULT 'Active',
+            \`deactivated_at\` datetime DEFAULT NULL,
+            \`pet_name\` varchar(255) DEFAULT NULL,
+            \`teacher_name\` varchar(255) DEFAULT NULL,
+            \`reset_token\` varchar(255) DEFAULT NULL,
+            \`reset_token_expiry\` datetime DEFAULT NULL,
+            \`updated_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (\`id\`),
+            UNIQUE KEY \`unique_email\` (\`email_id\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+
+        `CREATE TABLE IF NOT EXISTS \`workers\` (
+            \`city\` varchar(100) NOT NULL,
+            \`latitude\` decimal(10,8) DEFAULT NULL,
+            \`longitude\` decimal(11,8) DEFAULT NULL,
+            \`worker_name\` varchar(100) NOT NULL,
+            \`father_name\` varchar(100) DEFAULT NULL,
+            \`mother_name\` varchar(100) DEFAULT NULL,
+            \`contact\` varchar(15) NOT NULL,
+            \`password\` varchar(255) NOT NULL,
+            \`experience\` int(11) NOT NULL,
+            \`state\` varchar(100) NOT NULL,
+            \`work_type\` varchar(100) NOT NULL,
+            \`other_work\` varchar(100) DEFAULT NULL,
+            \`registration_date\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            \`deactivated_at\` datetime DEFAULT NULL,
+            \`status\` varchar(20) DEFAULT 'Active',
+            \`friend_name\` varchar(255) DEFAULT NULL,
+            \`school_name\` varchar(255) DEFAULT NULL,
+            \`birthplace\` varchar(255) DEFAULT NULL,
+            \`completed_jobs\` int(11) DEFAULT 0,
+            PRIMARY KEY (\`contact\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+
+        `CREATE TABLE IF NOT EXISTS \`tickets\` (
+            \`id\` int(11) NOT NULL AUTO_INCREMENT,
+            \`state\` varchar(100) NOT NULL,
+            \`city\` varchar(100) NOT NULL,
+            \`work_type\` varchar(100) NOT NULL,
+            \`user_name\` varchar(100) NOT NULL,
+            \`mobile_number\` varchar(10) NOT NULL,
+            \`problem_description\` text NOT NULL,
+            \`user_email\` varchar(255) NOT NULL DEFAULT 'guest@example.com',
+            \`status\` enum('pending','accepted','rejected','completed') DEFAULT 'pending',
+            \`accepted_worker_id\` int(11) DEFAULT NULL,
+            \`accepted_worker_name\` varchar(100) DEFAULT NULL,
+            \`accepted_worker_mobile\` varchar(10) DEFAULT NULL,
+            \`accepted_worker_latitude\` decimal(10,8) DEFAULT NULL,
+            \`accepted_worker_longitude\` decimal(11,8) DEFAULT NULL,
+            \`accepted_worker_work_type\` varchar(100) DEFAULT NULL,
+            \`accepted_at\` timestamp NULL DEFAULT NULL,
+            \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            \`rating\` int(11) DEFAULT 0,
+            \`completed_at\` datetime DEFAULT NULL,
+            PRIMARY KEY (\`id\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+
+        `CREATE TABLE IF NOT EXISTS \`service_requests\` (
+            \`id\` int(11) NOT NULL AUTO_INCREMENT,
+            \`user_email\` varchar(255) NOT NULL,
+            \`user_name\` varchar(255) DEFAULT NULL,
+            \`mobile_number\` varchar(20) NOT NULL,
+            \`worker_contact\` varchar(20) NOT NULL,
+            \`worker_name\` varchar(255) DEFAULT NULL,
+            \`worker_mobile\` varchar(20) DEFAULT NULL,
+            \`worker_work_type\` varchar(100) DEFAULT NULL,
+            \`work_type\` varchar(100) NOT NULL,
+            \`problem_description\` text NOT NULL,
+            \`city\` varchar(100) DEFAULT NULL,
+            \`state\` varchar(100) DEFAULT NULL,
+            \`status\` enum('pending','accepted','rejected','completed') DEFAULT 'pending',
+            \`rating\` int(11) DEFAULT NULL,
+            \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            \`accepted_at\` timestamp NULL DEFAULT NULL,
+            \`completed_at\` timestamp NULL DEFAULT NULL,
+            PRIMARY KEY (\`id\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+
+        `CREATE TABLE IF NOT EXISTS \`support_issues\` (
+            \`id\` int(11) NOT NULL AUTO_INCREMENT,
+            \`worker_contact\` varchar(15) DEFAULT NULL,
+            \`city\` varchar(50) DEFAULT NULL,
+            \`problem_description\` text,
+            \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (\`id\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`
+    ];
+
+    let done = 0;
+    tables.forEach((sql, i) => {
+        db.query(sql, (err) => {
+            if (err) console.error(`❌ Table ${i + 1} error:`, err.message);
+            else console.log(`✅ Table ${i + 1}/${tables.length} ready`);
+            done++;
+            if (done === tables.length) {
+                console.log("✅ All tables ready!");
+                if (callback) callback();
+            }
+        });
+    });
 }
 
 // Database setup function
