@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1365,7 +1365,7 @@
             }
 
             try {
-                const res = await fetch(`http://localhost:3000/user-profile?email=${encodeURIComponent(email)}`);
+                const res = await fetch(`/user-profile?email=${encodeURIComponent(email)}`);
                 
                 if (!res.ok) {
                     throw new Error("Failed to load profile");
@@ -1618,7 +1618,7 @@
 
             try {
                 // Build URL with location parameters if enabled
-                let url = `http://localhost:3000/search-workers?city=${encodeURIComponent(city)}&work=${encodeURIComponent(work)}`;
+                let url = `/search-workers?city=${encodeURIComponent(city)}&work=${encodeURIComponent(work)}`;
                 
                 // Add user location if available
                 if (locationSearchEnabled && userCurrentLocation) {
@@ -1761,7 +1761,7 @@
             const userEmail = localStorage.getItem("loggedInEmail");
 
             try {
-                const res = await fetch("http://localhost:3000/send-request", {
+                const res = await fetch("/send-request", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1808,7 +1808,7 @@
             const userEmail = localStorage.getItem("loggedInEmail");
 
             try {
-                const res = await fetch("http://localhost:3000/raise-ticket", {
+                const res = await fetch("/raise-ticket", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1848,7 +1848,7 @@
             modal.classList.add("active");
 
             try {
-                const res = await fetch(`http://localhost:3000/worker-profile-detail?contact=${encodeURIComponent(workerContact)}`);
+                const res = await fetch(`/worker-profile-detail?contact=${encodeURIComponent(workerContact)}`);
                 const data = await res.json();
 
                 if (!res.ok) throw new Error(data.message);
@@ -1941,7 +1941,7 @@
             container.innerHTML = '<div class="no-tickets">Loading your requests...</div>';
 
             try {
-                const res = await fetch(`http://localhost:3000/user-requests?email=${encodeURIComponent(email)}&status=pending`);
+                const res = await fetch(`/user-requests?email=${encodeURIComponent(email)}&status=pending`);
                 
                 if (!res.ok) throw new Error("Failed to load requests");
                 
@@ -1999,7 +1999,7 @@
             container.innerHTML = '<div class="no-tickets">Loading accepted tickets...</div>';
 
             try {
-                const res = await fetch(`http://localhost:3000/user-tickets?email=${encodeURIComponent(email)}`);
+                const res = await fetch(`/user-tickets?email=${encodeURIComponent(email)}`);
                 
                 if (!res.ok) throw new Error("Failed to load tickets");
                 
@@ -2075,7 +2075,7 @@
 
         async function viewWorkerLocation(workerMobile) {
             try {
-                const res = await fetch(`http://localhost:3000/worker-location?contact=${encodeURIComponent(workerMobile)}`);
+                const res = await fetch(`/worker-location?contact=${encodeURIComponent(workerMobile)}`);
                 const data = await res.json();
 
                 if (res.ok && data.latitude && data.longitude) {
@@ -2152,7 +2152,7 @@
                 btn.innerHTML = '⏳ Processing...';
 
                 try {
-                    const res = await fetch("http://localhost:3000/complete-job", {
+                    const res = await fetch("/complete-job", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -2193,7 +2193,7 @@
             container.innerHTML = '<div class="no-tickets">Loading history...</div>';
 
             try {
-                const res = await fetch(`http://localhost:3000/user-tickets?email=${encodeURIComponent(email)}`);
+                const res = await fetch(`/user-tickets?email=${encodeURIComponent(email)}`);
                 
                 if (!res.ok) throw new Error("Failed to load history");
                 
@@ -2280,7 +2280,7 @@
             const email = localStorage.getItem("loggedInEmail");
 
             try {
-                const res = await fetch("http://localhost:3000/user-schedule-deactivation", {
+                const res = await fetch("/user-schedule-deactivation", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email: email })
@@ -2314,7 +2314,7 @@
             if (!email) return;
 
             try {
-                const res = await fetch(`http://localhost:3000/check-deactivation?email=${encodeURIComponent(email)}`);
+                const res = await fetch(`/check-deactivation?email=${encodeURIComponent(email)}`);
                 
                 if (res.ok) {
                     const data = await res.json();
@@ -2378,7 +2378,7 @@
 
             if (confirmLogout) {
                 try {
-                    const res = await fetch("http://localhost:3000/logout", {
+                    const res = await fetch("/logout", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email })

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -397,7 +397,7 @@
     // Load current data on startup
     window.onload = async () => {
         try {
-            const res = await fetch("http://localhost:3000/worker-profile", {
+            const res = await fetch("/worker-profile", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ contact: loggedInWorker.contact })
@@ -444,7 +444,7 @@
         };
 
         try {
-            const res = await fetch('http://localhost:3000/update-worker-profile', {
+            const res = await fetch('/update-worker-profile', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedData)

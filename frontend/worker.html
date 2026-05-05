@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1648,7 +1648,7 @@
         if (hasError) return;
 
         try {
-            const res = await fetch("http://localhost:3000/worker-login", {
+            const res = await fetch("/worker-login", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
                 credentials: "include",
@@ -1753,7 +1753,7 @@
         }
 
         try {
-            const res = await fetch("http://localhost:3000/verify-security-questions", {
+            const res = await fetch("/verify-security-questions", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1792,7 +1792,7 @@
         }
 
         try {
-            const res = await fetch("http://localhost:3000/send-otp", {
+            const res = await fetch("/send-otp", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contact: mobile })
@@ -1852,7 +1852,7 @@
         }
 
         try {
-            const res = await fetch("http://localhost:3000/verify-otp", {
+            const res = await fetch("/verify-otp", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1895,7 +1895,7 @@
         }
 
         try {
-            const res = await fetch("http://localhost:3000/reset-password", {
+            const res = await fetch("/reset-password", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1997,7 +1997,7 @@
         console.log("📤 Sending registration data:", formData);
 
         try {
-            const res = await fetch("http://localhost:3000/register", {
+            const res = await fetch("/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)

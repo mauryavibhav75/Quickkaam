@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 
 const app = express();
 
@@ -14,12 +15,16 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, '../frontend')));
+
 // MySQL Connection Setup
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',      
-    password: 'admin',
-    database: 'skill_india_db'
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || 'admin',
+    database: process.env.DB_NAME || 'skill_india_db',
+    port: parseInt(process.env.DB_PORT) || 3306
 });
 
 db.connect((err) => {
@@ -1299,7 +1304,8 @@ app.post('/send-reset-email', async (req, res) => {
                 return res.status(500).json({ message: "Failed to generate reset link" });
             }
 
-            const resetLink = `http://localhost:3000/user.html?token=${resetToken}`;
+            const baseUrl = process.env.APP_URL || 'http://localhost:3000';
+            const resetLink = `${baseUrl}/user.html?token=${resetToken}`;
 
             console.log(`📧 Password reset link for ${email}:`);
             console.log(resetLink);
@@ -2132,8 +2138,9 @@ app.get('/', (req, res) => {
     res.send("✅ Skill India Server is Running Successfully!");
 });
 
-app.listen(3000, () => {
-    console.log('🚀 Server running on http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
     console.log('📊 Database: skill_india_db');
     console.log('🔧 Features: Worker profiles, User accounts, Service requests, Ratings, Deactivation timers');
     console.log('📍 NEW: Location-based worker search with proximity sorting');

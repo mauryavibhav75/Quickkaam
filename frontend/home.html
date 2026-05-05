@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1460,7 +1460,7 @@
             }
 
             try {
-                const res = await fetch('http://localhost:3000/worker-login', {
+                const res = await fetch('/worker-login', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ contact, password })
@@ -1498,7 +1498,7 @@
             };
 
             try {
-                const res = await fetch('http://localhost:3000/verify-security-questions', {
+                const res = await fetch('/verify-security-questions', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data)
@@ -1522,7 +1522,7 @@
             }
             
             try {
-                const res = await fetch('http://localhost:3000/send-otp', {
+                const res = await fetch('/send-otp', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({contact: mobile})
@@ -1544,7 +1544,7 @@
             const otp = document.getElementById('w_otp_code').value;
             
             try {
-                const res = await fetch('http://localhost:3000/verify-otp', {
+                const res = await fetch('/verify-otp', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({contact: mobile, otp})
@@ -1575,7 +1575,7 @@
             }
 
             try {
-                const res = await fetch('http://localhost:3000/reset-password', {
+                const res = await fetch('/reset-password', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({contact: mobile, new_password: newPass})
@@ -1600,7 +1600,7 @@
             const password = document.getElementById('u_loginPassword').value;
 
             try {
-                const res = await fetch('http://localhost:3000/user-login', {
+                const res = await fetch('/user-login', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ email, password })
@@ -1636,7 +1636,7 @@
         async function u_verifyEmailForSQ() {
             const email = document.getElementById('u_sq_email').value;
             try {
-                const res = await fetch('http://localhost:3000/check-user-email', {
+                const res = await fetch('/check-user-email', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({email})
@@ -1658,7 +1658,7 @@
             const teacher = document.getElementById('u_sq_teacher').value;
 
             try {
-                const res = await fetch('http://localhost:3000/verify-user-security-questions', {
+                const res = await fetch('/verify-user-security-questions', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'}, 
                     body: JSON.stringify({email: u_resetEmailTemp, pet_name: pet, teacher_name: teacher})
@@ -1676,7 +1676,7 @@
         async function u_sendResetLink() {
             const email = document.getElementById('u_rec_email').value;
             try {
-                const res = await fetch('http://localhost:3000/send-reset-email', {
+                const res = await fetch('/send-reset-email', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({email})
@@ -1707,7 +1707,7 @@
             }
 
             try {
-                const res = await fetch('http://localhost:3000/reset-user-password', {
+                const res = await fetch('/reset-user-password', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({email: u_resetEmailTemp, new_password: newPass})
@@ -1734,7 +1734,7 @@
 
         async function verifyResetToken(token) {
             try {
-                const res = await fetch('http://localhost:3000/verify-reset-token', {
+                const res = await fetch('/verify-reset-token', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token })

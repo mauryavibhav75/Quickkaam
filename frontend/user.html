@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -725,7 +725,7 @@
         }
 
         try {
-            const res = await fetch('http://localhost:3000/check-user-email', {
+            const res = await fetch('/check-user-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
@@ -760,7 +760,7 @@
         }
 
         try {
-            const res = await fetch('http://localhost:3000/verify-user-security-questions', {
+            const res = await fetch('/verify-user-security-questions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -807,7 +807,7 @@
         sendBtn.textContent = 'Sending...';
 
         try {
-            const res = await fetch('http://localhost:3000/send-reset-email', {
+            const res = await fetch('/send-reset-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
@@ -850,7 +850,7 @@
         }
 
         try {
-            const res = await fetch('http://localhost:3000/reset-user-password', {
+            const res = await fetch('/reset-user-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -923,7 +923,7 @@
         if (hasError) return;
 
         try {
-            const res = await fetch("http://localhost:3000/user-login", {
+            const res = await fetch("/user-login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -1011,7 +1011,7 @@
         };
 
         try {
-            const res = await fetch('http://localhost:3000/register-user', {
+            const res = await fetch('/register-user', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(formData)
@@ -1046,7 +1046,7 @@
 
     async function verifyResetToken(token) {
         try {
-            const res = await fetch('http://localhost:3000/verify-reset-token', {
+            const res = await fetch('/verify-reset-token', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token })

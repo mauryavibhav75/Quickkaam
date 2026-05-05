@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -99,7 +99,7 @@
             if (finalConsent) {
                 try {
                     // Using your existing endpoint for deletion
-                    const res = await fetch("http://localhost:3000/logout-delete", {
+                    const res = await fetch("/logout-delete", {
                         method: "DELETE",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email: email })

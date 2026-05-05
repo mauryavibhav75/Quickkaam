@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -423,7 +423,7 @@
 
             // Fetch current user data
             try {
-                const res = await fetch(`http://localhost:3000/user-profile?email=${encodeURIComponent(email)}`);
+                const res = await fetch(`/user-profile?email=${encodeURIComponent(email)}`);
                 
                 if (res.ok) {
                     const userData = await res.json();
@@ -463,7 +463,7 @@
             };
 
             try {
-                const res = await fetch("http://localhost:3000/update-user", {
+                const res = await fetch("/update-user", {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(updateData)

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -719,7 +719,7 @@ function toggleMobileMenu() {
 // ============================================================================
 async function fetchWorkerProfile() {
     try {
-        const res = await fetch("http://localhost:3000/worker-profile", {
+        const res = await fetch("/worker-profile", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ contact: loggedInWorker.contact })
@@ -778,7 +778,7 @@ async function loadNotifications() {
     listDiv.innerHTML = '<div class="no-tickets">Loading notifications...</div>';
     
     try {
-        const res = await fetch(`http://localhost:3000/worker-notifications?worker_contact=${encodeURIComponent(worker.contact)}`);
+        const res = await fetch(`/worker-notifications?worker_contact=${encodeURIComponent(worker.contact)}`);
         
         if (!res.ok) {
             const errorData = await res.json();
@@ -871,7 +871,7 @@ async function acceptRequest(requestId) {
     try {
         // ✅ UPDATED: Only send worker_mobile
         // Server will fetch complete worker details from workers table
-        const res = await fetch("http://localhost:3000/worker-accept-request", {
+        const res = await fetch("/worker-accept-request", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -908,7 +908,7 @@ async function rejectRequest(requestId) {
     if (!confirmReject) return;
 
     try {
-        const res = await fetch("http://localhost:3000/worker-reject-request", {
+        const res = await fetch("/worker-reject-request", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ request_id: requestId })
@@ -935,7 +935,7 @@ async function loadAcceptedWork() {
     container.innerHTML = '<div class="no-tickets">Loading your accepted work...</div>';
 
     try {
-        const res = await fetch(`http://localhost:3000/worker-accepted-work?worker_mobile=${encodeURIComponent(worker.contact)}`);
+        const res = await fetch(`/worker-accepted-work?worker_mobile=${encodeURIComponent(worker.contact)}`);
         
         if (!res.ok) throw new Error("Failed to load accepted work");
         
@@ -994,7 +994,7 @@ async function loadWorkHistory() {
     container.innerHTML = '<div class="no-tickets">Loading your work history...</div>';
 
     try {
-        const res = await fetch(`http://localhost:3000/worker-history?worker_mobile=${encodeURIComponent(worker.contact)}`);
+        const res = await fetch(`/worker-history?worker_mobile=${encodeURIComponent(worker.contact)}`);
         
         if (!res.ok) throw new Error("Failed to load history");
         
@@ -1053,7 +1053,7 @@ async function deactivateAccount() {
 
     if (userConfirmed) {
         try {
-            const res = await fetch("http://localhost:3000/worker-schedule-deactivation", {
+            const res = await fetch("/worker-schedule-deactivation", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contact: contact })
