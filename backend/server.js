@@ -1,12 +1,13 @@
 const express = require('express');
 const bcrypt = require("bcryptjs");
-const { Pool } = require('pg');
+const mysql = require('mysql2');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
@@ -18,36 +19,25 @@ app.use(cookieParser());
 // Serve frontend static files
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// PostgreSQL Connection Setup
-const db = new Pool({
+// MySQL Connection Setup
+const db = mysql.createConnection({
     host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'postgres',
+    user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'defaultdb',
-    port: parseInt(process.env.DB_PORT) || 5432,
-    ssl: process.env.DB_HOST ? { rejectUnauthorized: false } : false
+    database: process.env.DB_NAME || 'skill_india_db',
+    port: parseInt(process.env.DB_PORT) || 3306,
+    ssl: {
+        ca: fs.readFileSync(path.join(__dirname, 'ca.pem'))
+    }
 });
 
-// Helper: converts MySQL ? placeholders to PostgreSQL $1, $2... and normalizes result
-function dbQuery(sql, params, callback) {
-    if (typeof params === 'function') { callback = params; params = []; }
-    let i = 0;
-    const pgSql = sql.replace(/\?/g, () => `$${++i}`);
-    db.query(pgSql, params || [], (err, result) => {
-        if (err) return callback(err);
-        const rows = result.rows || [];
-        rows.insertId = rows.length > 0 ? rows[0].id : null;
-        rows.affectedRows = result.rowCount;
-        callback(null, rows);
-    });
-}
-
-db.query('SELECT 1', (err) => {
+db.connect((err) => {
     if (err) {
         console.error('Database connection failed:', err);
         return;
     }
-    console.log('✅ Skill India Server Connected to PostgreSQL Database');
+    console.log('✅ Skill India Server Connected to MySQL Database');
+
     createTables(() => {
         setupDatabaseColumns();
     });
@@ -95,101 +85,111 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return distance;
 }
 
-// Auto-create all tables if they don't exist (PostgreSQL syntax)
+// Auto-create all tables if they don't exist
 function createTables(callback) {
     console.log("📋 Creating tables if not exist...");
 
     const tables = [
-        `CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            full_name VARCHAR(100) NOT NULL,
-            email_id VARCHAR(100) NOT NULL UNIQUE,
-            mobile_no VARCHAR(15) NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            state_name VARCHAR(100) NOT NULL,
-            city_name VARCHAR(100) NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            status VARCHAR(20) DEFAULT 'Active',
-            deactivated_at TIMESTAMP,
-            pet_name VARCHAR(255),
-            teacher_name VARCHAR(255),
-            reset_token VARCHAR(255),
-            reset_token_expiry TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`,
-        `CREATE TABLE IF NOT EXISTS workers (
-            city VARCHAR(100) NOT NULL,
-            latitude DECIMAL(10,8),
-            longitude DECIMAL(11,8),
-            worker_name VARCHAR(100) NOT NULL,
-            father_name VARCHAR(100),
-            mother_name VARCHAR(100),
-            contact VARCHAR(15) NOT NULL PRIMARY KEY,
-            password VARCHAR(255) NOT NULL,
-            experience INTEGER NOT NULL,
-            state VARCHAR(100) NOT NULL,
-            work_type VARCHAR(100) NOT NULL,
-            other_work VARCHAR(100),
-            registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            deactivated_at TIMESTAMP,
-            status VARCHAR(20) DEFAULT 'Active',
-            friend_name VARCHAR(255),
-            school_name VARCHAR(255),
-            birthplace VARCHAR(255),
-            completed_jobs INTEGER DEFAULT 0
-        )`,
-        `CREATE TABLE IF NOT EXISTS tickets (
-            id SERIAL PRIMARY KEY,
-            state VARCHAR(100) NOT NULL,
-            city VARCHAR(100) NOT NULL,
-            work_type VARCHAR(100) NOT NULL,
-            user_name VARCHAR(100) NOT NULL,
-            mobile_number VARCHAR(10) NOT NULL,
-            problem_description TEXT NOT NULL,
-            user_email VARCHAR(255) NOT NULL DEFAULT 'guest@example.com',
-            status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','accepted','rejected','completed')),
-            accepted_worker_id INTEGER,
-            accepted_worker_name VARCHAR(100),
-            accepted_worker_mobile VARCHAR(10),
-            accepted_worker_latitude DECIMAL(10,8),
-            accepted_worker_longitude DECIMAL(11,8),
-            accepted_worker_work_type VARCHAR(100),
-            accepted_at TIMESTAMP,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            rating INTEGER DEFAULT 0,
-            completed_at TIMESTAMP
-        )`,
-        `CREATE TABLE IF NOT EXISTS service_requests (
-            id SERIAL PRIMARY KEY,
-            user_email VARCHAR(255) NOT NULL,
-            user_name VARCHAR(255),
-            mobile_number VARCHAR(20) NOT NULL,
-            worker_contact VARCHAR(20) NOT NULL,
-            worker_name VARCHAR(255),
-            worker_mobile VARCHAR(20),
-            worker_work_type VARCHAR(100),
-            work_type VARCHAR(100) NOT NULL,
-            problem_description TEXT NOT NULL,
-            city VARCHAR(100),
-            state VARCHAR(100),
-            status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','accepted','rejected','completed')),
-            rating INTEGER,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            accepted_at TIMESTAMP,
-            completed_at TIMESTAMP
-        )`,
-        `CREATE TABLE IF NOT EXISTS support_issues (
-            id SERIAL PRIMARY KEY,
-            worker_contact VARCHAR(15),
-            city VARCHAR(50),
-            problem_description TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`
+        `CREATE TABLE IF NOT EXISTS \`users\` (
+            \`id\` int(11) NOT NULL AUTO_INCREMENT,
+            \`full_name\` varchar(100) NOT NULL,
+            \`email_id\` varchar(100) NOT NULL,
+            \`mobile_no\` varchar(15) NOT NULL,
+            \`password\` varchar(255) NOT NULL,
+            \`state_name\` varchar(100) NOT NULL,
+            \`city_name\` varchar(100) NOT NULL,
+            \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            \`status\` varchar(20) DEFAULT 'Active',
+            \`deactivated_at\` datetime DEFAULT NULL,
+            \`pet_name\` varchar(255) DEFAULT NULL,
+            \`teacher_name\` varchar(255) DEFAULT NULL,
+            \`reset_token\` varchar(255) DEFAULT NULL,
+            \`reset_token_expiry\` datetime DEFAULT NULL,
+            \`updated_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (\`id\`),
+            UNIQUE KEY \`unique_email\` (\`email_id\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+
+        `CREATE TABLE IF NOT EXISTS \`workers\` (
+            \`city\` varchar(100) NOT NULL,
+            \`latitude\` decimal(10,8) DEFAULT NULL,
+            \`longitude\` decimal(11,8) DEFAULT NULL,
+            \`worker_name\` varchar(100) NOT NULL,
+            \`father_name\` varchar(100) DEFAULT NULL,
+            \`mother_name\` varchar(100) DEFAULT NULL,
+            \`contact\` varchar(15) NOT NULL,
+            \`password\` varchar(255) NOT NULL,
+            \`experience\` int(11) NOT NULL,
+            \`state\` varchar(100) NOT NULL,
+            \`work_type\` varchar(100) NOT NULL,
+            \`other_work\` varchar(100) DEFAULT NULL,
+            \`registration_date\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            \`deactivated_at\` datetime DEFAULT NULL,
+            \`status\` varchar(20) DEFAULT 'Active',
+            \`friend_name\` varchar(255) DEFAULT NULL,
+            \`school_name\` varchar(255) DEFAULT NULL,
+            \`birthplace\` varchar(255) DEFAULT NULL,
+            \`completed_jobs\` int(11) DEFAULT 0,
+            PRIMARY KEY (\`contact\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+
+        `CREATE TABLE IF NOT EXISTS \`tickets\` (
+            \`id\` int(11) NOT NULL AUTO_INCREMENT,
+            \`state\` varchar(100) NOT NULL,
+            \`city\` varchar(100) NOT NULL,
+            \`work_type\` varchar(100) NOT NULL,
+            \`user_name\` varchar(100) NOT NULL,
+            \`mobile_number\` varchar(10) NOT NULL,
+            \`problem_description\` text NOT NULL,
+            \`user_email\` varchar(255) NOT NULL DEFAULT 'guest@example.com',
+            \`status\` enum('pending','accepted','rejected','completed') DEFAULT 'pending',
+            \`accepted_worker_id\` int(11) DEFAULT NULL,
+            \`accepted_worker_name\` varchar(100) DEFAULT NULL,
+            \`accepted_worker_mobile\` varchar(10) DEFAULT NULL,
+            \`accepted_worker_latitude\` decimal(10,8) DEFAULT NULL,
+            \`accepted_worker_longitude\` decimal(11,8) DEFAULT NULL,
+            \`accepted_worker_work_type\` varchar(100) DEFAULT NULL,
+            \`accepted_at\` timestamp NULL DEFAULT NULL,
+            \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            \`rating\` int(11) DEFAULT 0,
+            \`completed_at\` datetime DEFAULT NULL,
+            PRIMARY KEY (\`id\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+
+        `CREATE TABLE IF NOT EXISTS \`service_requests\` (
+            \`id\` int(11) NOT NULL AUTO_INCREMENT,
+            \`user_email\` varchar(255) NOT NULL,
+            \`user_name\` varchar(255) DEFAULT NULL,
+            \`mobile_number\` varchar(20) NOT NULL,
+            \`worker_contact\` varchar(20) NOT NULL,
+            \`worker_name\` varchar(255) DEFAULT NULL,
+            \`worker_mobile\` varchar(20) DEFAULT NULL,
+            \`worker_work_type\` varchar(100) DEFAULT NULL,
+            \`work_type\` varchar(100) NOT NULL,
+            \`problem_description\` text NOT NULL,
+            \`city\` varchar(100) DEFAULT NULL,
+            \`state\` varchar(100) DEFAULT NULL,
+            \`status\` enum('pending','accepted','rejected','completed') DEFAULT 'pending',
+            \`rating\` int(11) DEFAULT NULL,
+            \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            \`accepted_at\` timestamp NULL DEFAULT NULL,
+            \`completed_at\` timestamp NULL DEFAULT NULL,
+            PRIMARY KEY (\`id\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+
+        `CREATE TABLE IF NOT EXISTS \`support_issues\` (
+            \`id\` int(11) NOT NULL AUTO_INCREMENT,
+            \`worker_contact\` varchar(15) DEFAULT NULL,
+            \`city\` varchar(50) DEFAULT NULL,
+            \`problem_description\` text,
+            \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (\`id\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`
     ];
 
     let done = 0;
     tables.forEach((sql, i) => {
-        dbQuery(sql, (err) => {
+        db.query(sql, (err) => {
             if (err) console.error(`❌ Table ${i + 1} error:`, err.message);
             else console.log(`✅ Table ${i + 1}/${tables.length} ready`);
             done++;
@@ -201,35 +201,123 @@ function createTables(callback) {
     });
 }
 
-// Database setup function (PostgreSQL - uses ADD COLUMN IF NOT EXISTS)
+// Database setup function
 function setupDatabaseColumns() {
     console.log("🔧 Checking database structure...");
-    const alters = [
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'Active'",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS deactivated_at TIMESTAMP",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS pet_name VARCHAR(255)",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS teacher_name VARCHAR(255)",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255)",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP",
-        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS rating INTEGER DEFAULT 0",
-        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP",
-        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS user_email VARCHAR(255) DEFAULT 'guest@example.com'",
-        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS accepted_worker_name VARCHAR(255)",
-        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS accepted_worker_mobile VARCHAR(20)",
-        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS accepted_worker_work_type VARCHAR(255)",
-        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS accepted_at TIMESTAMP",
-        "ALTER TABLE workers ADD COLUMN IF NOT EXISTS friend_name VARCHAR(255)",
-        "ALTER TABLE workers ADD COLUMN IF NOT EXISTS school_name VARCHAR(255)",
-        "ALTER TABLE workers ADD COLUMN IF NOT EXISTS birthplace VARCHAR(255)"
+    
+    const columns = [
+        {
+            table: "users",
+            column: "status",
+            sql: "ALTER TABLE users ADD COLUMN status VARCHAR(20) DEFAULT 'Active'"
+        },
+        {
+            table: "users",
+            column: "deactivated_at",
+            sql: "ALTER TABLE users ADD COLUMN deactivated_at DATETIME DEFAULT NULL"
+        },
+        {
+            table: "tickets",
+            column: "rating",
+            sql: "ALTER TABLE tickets ADD COLUMN rating INT DEFAULT 0"
+        },
+        {
+            table: "tickets",
+            column: "completed_at",
+            sql: "ALTER TABLE tickets ADD COLUMN completed_at DATETIME DEFAULT NULL"
+        },
+        {
+            table: "tickets",
+            column: "user_email",
+            sql: "ALTER TABLE tickets ADD COLUMN user_email VARCHAR(255) DEFAULT 'guest@example.com'"
+        },
+        {
+            table: "tickets",
+            column: "accepted_worker_name",
+            sql: "ALTER TABLE tickets ADD COLUMN accepted_worker_name VARCHAR(255) DEFAULT NULL"
+        },
+        {
+            table: "tickets",
+            column: "accepted_worker_mobile",
+            sql: "ALTER TABLE tickets ADD COLUMN accepted_worker_mobile VARCHAR(20) DEFAULT NULL"
+        },
+        {
+            table: "tickets",
+            column: "accepted_worker_work_type",
+            sql: "ALTER TABLE tickets ADD COLUMN accepted_worker_work_type VARCHAR(255) DEFAULT NULL"
+        },
+        {
+            table: "tickets",
+            column: "accepted_at",
+            sql: "ALTER TABLE tickets ADD COLUMN accepted_at DATETIME DEFAULT NULL"
+        },
+        {
+            table: "workers",
+            column: "friend_name",
+            sql: "ALTER TABLE workers ADD COLUMN friend_name VARCHAR(255) DEFAULT NULL"
+        },
+        {
+            table: "workers",
+            column: "school_name",
+            sql: "ALTER TABLE workers ADD COLUMN school_name VARCHAR(255) DEFAULT NULL"
+        },
+        {
+            table: "workers",
+            column: "birthplace",
+            sql: "ALTER TABLE workers ADD COLUMN birthplace VARCHAR(255) DEFAULT NULL"
+        },
+        {
+            table: "users",
+            column: "pet_name",
+            sql: "ALTER TABLE users ADD COLUMN pet_name VARCHAR(255) DEFAULT NULL"
+        },
+        {
+            table: "users",
+            column: "teacher_name",
+            sql: "ALTER TABLE users ADD COLUMN teacher_name VARCHAR(255) DEFAULT NULL"
+        },
+        {
+            table: "users",
+            column: "reset_token",
+            sql: "ALTER TABLE users ADD COLUMN reset_token VARCHAR(255) DEFAULT NULL"
+        },
+        {
+            table: "users",
+            column: "reset_token_expiry",
+            sql: "ALTER TABLE users ADD COLUMN reset_token_expiry DATETIME DEFAULT NULL"
+        }
     ];
-    alters.forEach(sql => {
-        dbQuery(sql, (err) => {
-            if (err && !err.message.includes('already exists')) {
-                console.error("❌ Alter error:", err.message);
+    
+    let checked = 0;
+    let added = 0;
+    
+    columns.forEach(col => {
+        const checkSql = `SHOW COLUMNS FROM ${col.table} LIKE '${col.column}'`;
+        
+        db.query(checkSql, (err, result) => {
+            if (err) {
+                console.error(`❌ Error checking ${col.table}.${col.column}:`, err.message);
+            } else if (result.length === 0) {
+                db.query(col.sql, (alterErr) => {
+                    if (alterErr) {
+                        console.error(`❌ Error adding ${col.table}.${col.column}:`, alterErr.message);
+                    } else {
+                        console.log(`✅ Added column: ${col.table}.${col.column}`);
+                        added++;
+                    }
+                });
+            }
+            
+            checked++;
+            if (checked === columns.length) {
+                if (added > 0) {
+                    console.log(`🎉 Database structure updated! Added ${added} column(s).`);
+                } else {
+                    console.log("✅ Database structure is up to date!");
+                }
             }
         });
     });
-    console.log("✅ Database structure check complete!");
 }
 
 // ==================== WORKER ROUTES ====================
@@ -265,7 +353,7 @@ app.post("/register", async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        dbQuery(sql, [
+        db.query(sql, [
             worker_name, father_name, mother_name, contact,
             hashedPassword, experience, state,
             city, work_type, other_work,
@@ -295,7 +383,7 @@ app.post("/worker-login", (req, res) => {
 
     const sql = "SELECT * FROM workers WHERE contact = ?";
 
-    dbQuery(sql, [contact], async (err, result) => {
+    db.query(sql, [contact], async (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ message: "Server error" });
@@ -309,7 +397,7 @@ app.post("/worker-login", (req, res) => {
 
         if (worker.status === 'Deactivated') {
             const cancelSql = "UPDATE workers SET status = 'Active', deactivated_at = NULL WHERE contact = ?";
-            dbQuery(cancelSql, [contact], (cancelErr) => {
+            db.query(cancelSql, [contact], (cancelErr) => {
                 if (cancelErr) {
                     console.error("Error canceling deactivation:", cancelErr);
                 }
@@ -359,7 +447,7 @@ app.post('/verify-security-questions', (req, res) => {
         WHERE contact = ?
     `;
 
-    dbQuery(sql, [contact], (err, result) => {
+    db.query(sql, [contact], (err, result) => {
         if (err) {
             console.error("Database error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -399,7 +487,7 @@ app.post('/send-otp', (req, res) => {
 
     const checkSql = "SELECT contact FROM workers WHERE contact = ?";
     
-    dbQuery(checkSql, [contact], (err, result) => {
+    db.query(checkSql, [contact], (err, result) => {
         if (err) {
             console.error("Database error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -466,7 +554,7 @@ app.post('/reset-password', async (req, res) => {
 
         const updateSql = "UPDATE workers SET password = ? WHERE contact = ?";
 
-        dbQuery(updateSql, [hashedPassword, contact], (err, result) => {
+        db.query(updateSql, [hashedPassword, contact], (err, result) => {
             if (err) {
                 console.error("Database error:", err);
                 return res.status(500).json({ message: "Failed to reset password" });
@@ -496,7 +584,7 @@ app.post('/worker-profile', (req, res) => {
     
     const sql = "SELECT * FROM workers WHERE contact = ?";
     
-    dbQuery(sql, [contact], (err, result) => {
+    db.query(sql, [contact], (err, result) => {
         if (err) {
             console.error("Database error:", err);
             return res.status(500).json({ message: "Database Error" });
@@ -519,7 +607,7 @@ app.post('/worker-profile', (req, res) => {
             AND rating > 0
         `;
         
-        dbQuery(statsSql, [contact], (statErr, statResult) => {
+        db.query(statsSql, [contact], (statErr, statResult) => {
             if (statErr) {
                 console.error("Stats error:", statErr);
                 return res.json({
@@ -554,7 +642,7 @@ app.post('/update-worker-profile', (req, res) => {
                  SET worker_name = ?, father_name = ?, mother_name = ?, experience = ?, work_type = ?, other_work = ? 
                  WHERE contact = ?`;
     
-    dbQuery(sql, [worker_name, father_name, mother_name, experience, work_type, other_work, contact], (err, result) => {
+    db.query(sql, [worker_name, father_name, mother_name, experience, work_type, other_work, contact], (err, result) => {
         if (err) return res.status(500).json({ message: "Update Failed" });
         res.json({ message: "Profile updated successfully" });
     });
@@ -565,7 +653,7 @@ app.post('/worker-schedule-deactivation', (req, res) => {
     
     const sql = "UPDATE workers SET status = 'Deactivated', deactivated_at = NOW() WHERE contact = ?";
     
-    dbQuery(sql, [contact], (err, result) => {
+    db.query(sql, [contact], (err, result) => {
         if (err) return res.status(500).json({ message: "Server error" });
         res.json({ message: "Account deactivated. It will be permanently deleted in 1 hour." });
     });
@@ -576,7 +664,7 @@ app.get('/worker-check-deactivation', (req, res) => {
     
     const sql = "SELECT status, deactivated_at FROM workers WHERE contact = ?";
     
-    dbQuery(sql, [contact], (err, result) => {
+    db.query(sql, [contact], (err, result) => {
         if (err) return res.status(500).json({ message: "Server error" });
         if (result.length > 0) {
             res.json(result[0]);
@@ -594,7 +682,7 @@ app.get('/worker-notifications', (req, res) => {
 
         const workerQuery = `SELECT city, work_type FROM workers WHERE contact = ?`;
         
-        dbQuery(workerQuery, [worker_contact], (workerErr, workerResult) => {
+        db.query(workerQuery, [worker_contact], (workerErr, workerResult) => {
             if (workerErr || workerResult.length === 0) {
                 console.error("❌ Worker not found:", worker_contact);
                 return res.status(404).json({ message: "Worker not found" });
@@ -618,7 +706,7 @@ app.get('/worker-notifications', (req, res) => {
                     created_at DESC
             `;
 
-            dbQuery(query, [worker_contact, worker.city, worker.work_type, worker_contact], (err, results) => {
+            db.query(query, [worker_contact, worker.city, worker.work_type, worker_contact], (err, results) => {
                 if (err) {
                     console.error("❌ Database error:", err);
                     return res.status(500).json({ 
@@ -643,7 +731,7 @@ app.get('/worker-notifications', (req, res) => {
             ORDER BY created_at DESC
         `;
 
-        dbQuery(query, [city, work_type], (err, results) => {
+        db.query(query, [city, work_type], (err, results) => {
             if (err) {
                 console.error("❌ Database error:", err);
                 return res.status(500).json({ 
@@ -688,7 +776,7 @@ app.get('/worker-ongoing', (req, res) => {
         ORDER BY accepted_at DESC
     `;
 
-    dbQuery(query, [worker_mobile], (err, results) => {
+    db.query(query, [worker_mobile], (err, results) => {
         if (err) {
             console.error("❌ Database error:", err);
             return res.status(500).json({ 
@@ -711,7 +799,7 @@ app.get('/worker-profile-detail', (req, res) => {
 
     const workerSql = "SELECT * FROM workers WHERE contact = ?";
     
-    dbQuery(workerSql, [contact], (err, workerResult) => {
+    db.query(workerSql, [contact], (err, workerResult) => {
         if (err) {
             console.error("❌ Database error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -731,7 +819,7 @@ app.get('/worker-profile-detail', (req, res) => {
             WHERE accepted_worker_mobile = ? AND status = 'completed' AND rating IS NOT NULL
         `;
 
-        dbQuery(statsSql, [contact], (statErr, statResult) => {
+        db.query(statsSql, [contact], (statErr, statResult) => {
             if (statErr) {
                 console.error("❌ Stats error:", statErr);
             }
@@ -754,7 +842,7 @@ app.get('/worker-profile-detail', (req, res) => {
                 LIMIT 50
             `;
 
-            dbQuery(historySql, [contact], (histErr, historyResult) => {
+            db.query(historySql, [contact], (histErr, historyResult) => {
                 if (histErr) {
                     console.error("❌ History error:", histErr);
                     return res.json({
@@ -783,7 +871,7 @@ app.post('/send-request', (req, res) => {
 
     const userSql = "SELECT full_name FROM users WHERE email_id = ?";
     
-    dbQuery(userSql, [user_email], (userErr, userResult) => {
+    db.query(userSql, [user_email], (userErr, userResult) => {
         if (userErr) {
             console.error("❌ User query error:", userErr);
             return res.status(500).json({ message: "Database error" });
@@ -793,7 +881,7 @@ app.post('/send-request', (req, res) => {
 
         const workerSql = "SELECT worker_name, city, state, work_type FROM workers WHERE contact = ?";
         
-        dbQuery(workerSql, [worker_contact], (err, workerResult) => {
+        db.query(workerSql, [worker_contact], (err, workerResult) => {
             if (err || workerResult.length === 0) {
                 return res.status(404).json({ message: "Worker not found" });
             }
@@ -801,13 +889,13 @@ app.post('/send-request', (req, res) => {
             const worker = workerResult[0];
 
             const insertSql = `
-                INSERT INTO tickets
-                (state, city, work_type, user_name, mobile_number, problem_description, user_email, status,
-                 accepted_worker_name, accepted_worker_mobile, accepted_worker_work_type)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?) RETURNING id
+                INSERT INTO tickets 
+                (state, city, work_type, user_name, mobile_number, problem_description, user_email, status, 
+                 accepted_worker_name, accepted_worker_mobile, accepted_worker_work_type) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)
             `;
 
-            dbQuery(insertSql,
+            db.query(insertSql, 
                 [worker.state, worker.city, work_type, userName, mobile_number, problem_description, user_email, 
                  worker.worker_name, worker_contact, worker.work_type],
                 (insertErr, result) => {
@@ -853,7 +941,7 @@ app.get('/user-requests', (req, res) => {
 
     query += ' ORDER BY created_at DESC';
 
-    dbQuery(query, params, (err, results) => {
+    db.query(query, params, (err, results) => {
         if (err) {
             console.error("❌ Database error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -878,7 +966,7 @@ app.post('/worker-accept-request', (req, res) => {
         WHERE contact = ?
     `;
 
-    dbQuery(getWorkerSql, [worker_mobile], (workerErr, workerResult) => {
+    db.query(getWorkerSql, [worker_mobile], (workerErr, workerResult) => {
         if (workerErr || workerResult.length === 0) {
             console.error("❌ Worker not found:", workerErr);
             return res.status(404).json({ message: "Worker not found" });
@@ -888,7 +976,7 @@ app.post('/worker-accept-request', (req, res) => {
 
         const checkQuery = `SELECT id, status FROM tickets WHERE id = ?`;
         
-        dbQuery(checkQuery, [request_id], (checkErr, checkResults) => {
+        db.query(checkQuery, [request_id], (checkErr, checkResults) => {
             if (checkErr) {
                 console.error("❌ Check error:", checkErr);
                 return res.status(500).json({ message: "Database error" });
@@ -915,7 +1003,7 @@ app.post('/worker-accept-request', (req, res) => {
                 WHERE id = ? AND status = 'pending'
             `;
 
-            dbQuery(updateQuery, [
+            db.query(updateQuery, [
                 worker.worker_name,
                 worker.contact,
                 worker.work_type,
@@ -956,7 +1044,7 @@ app.post('/worker-reject-request', (req, res) => {
         WHERE id = ? AND status = 'pending'
     `;
 
-    dbQuery(updateQuery, [request_id], (err, result) => {
+    db.query(updateQuery, [request_id], (err, result) => {
         if (err) {
             console.error("❌ Update error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -983,7 +1071,7 @@ app.get('/worker-accepted-work', (req, res) => {
         ORDER BY accepted_at DESC
     `;
 
-    dbQuery(query, [worker_mobile], (err, results) => {
+    db.query(query, [worker_mobile], (err, results) => {
         if (err) {
             console.error("❌ Database error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -1009,7 +1097,7 @@ app.get('/worker-history', (req, res) => {
         ORDER BY completed_at DESC
     `;
 
-    dbQuery(query, [worker_mobile], (err, results) => {
+    db.query(query, [worker_mobile], (err, results) => {
         if (err) {
             console.error("❌ Database error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -1030,7 +1118,7 @@ app.post('/complete-job', (req, res) => {
 
     const getTicketQuery = `SELECT * FROM tickets WHERE id = ?`;
     
-    dbQuery(getTicketQuery, [ticket_id], (err, results) => {
+    db.query(getTicketQuery, [ticket_id], (err, results) => {
         if (err) {
             console.error("❌ Database SELECT error:", err);
             return res.status(500).json({ 
@@ -1069,7 +1157,7 @@ app.post('/complete-job', (req, res) => {
             WHERE id = ?
         `;
 
-        dbQuery(updateQuery, [rating || 0, ticket_id], (updateErr, updateResult) => {
+        db.query(updateQuery, [rating || 0, ticket_id], (updateErr, updateResult) => {
             if (updateErr) {
                 console.error("❌ UPDATE error:", updateErr);
                 return res.status(500).json({ 
@@ -1131,7 +1219,7 @@ app.post('/register-user', async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        dbQuery(sql, [
+        db.query(sql, [
             name, email, mobile, hashedPassword, state, city,
             pet_name.toLowerCase().trim(),
             teacher_name.toLowerCase().trim()
@@ -1169,7 +1257,7 @@ app.post("/user-login", (req, res) => {
 
     const sql = "SELECT * FROM users WHERE email_id = ?";
 
-    dbQuery(sql, [email], async (err, result) => {
+    db.query(sql, [email], async (err, result) => {
         if (err) {
             console.error("Database Error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -1183,7 +1271,7 @@ app.post("/user-login", (req, res) => {
 
         if (user.hasOwnProperty('status') && user.status === 'Deactivated') {
             const cancelDeactivationSql = "UPDATE users SET status = 'Active', deactivated_at = NULL WHERE email_id = ?";
-            dbQuery(cancelDeactivationSql, [email], (cancelErr) => {
+            db.query(cancelDeactivationSql, [email], (cancelErr) => {
                 if (cancelErr) {
                     console.error("Error canceling deactivation:", cancelErr);
                 } else {
@@ -1242,7 +1330,7 @@ app.post('/check-user-email', (req, res) => {
 
     const sql = "SELECT email_id FROM users WHERE email_id = ?";
     
-    dbQuery(sql, [email], (err, result) => {
+    db.query(sql, [email], (err, result) => {
         if (err) {
             console.error("Database error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -1270,7 +1358,7 @@ app.post('/verify-user-security-questions', (req, res) => {
         WHERE email_id = ?
     `;
 
-    dbQuery(sql, [email], (err, result) => {
+    db.query(sql, [email], (err, result) => {
         if (err) {
             console.error("Database error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -1313,7 +1401,7 @@ app.post('/send-reset-email', async (req, res) => {
 
     const checkSql = "SELECT email_id FROM users WHERE email_id = ?";
     
-    dbQuery(checkSql, [email], async (err, result) => {
+    db.query(checkSql, [email], async (err, result) => {
         if (err) {
             console.error("Database error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -1332,7 +1420,7 @@ app.post('/send-reset-email', async (req, res) => {
             WHERE email_id = ?
         `;
 
-        dbQuery(updateSql, [resetToken, tokenExpiry, email], async (updateErr) => {
+        db.query(updateSql, [resetToken, tokenExpiry, email], async (updateErr) => {
             if (updateErr) {
                 console.error("Token storage error:", updateErr);
                 return res.status(500).json({ message: "Failed to generate reset link" });
@@ -1366,7 +1454,7 @@ app.post('/verify-reset-token', (req, res) => {
         WHERE reset_token = ?
     `;
 
-    dbQuery(sql, [token], (err, result) => {
+    db.query(sql, [token], (err, result) => {
         if (err) {
             console.error("Database error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -1414,7 +1502,7 @@ app.post('/reset-user-password', async (req, res) => {
             WHERE email_id = ?
         `;
 
-        dbQuery(updateSql, [hashedPassword, email], (err, result) => {
+        db.query(updateSql, [hashedPassword, email], (err, result) => {
             if (err) {
                 console.error("Database error:", err);
                 return res.status(500).json({ message: "Failed to reset password" });
@@ -1438,7 +1526,7 @@ app.put('/update-user', (req, res) => {
 
     const sql = `UPDATE users SET full_name=?, mobile_no=? WHERE email_id=?`;
 
-    dbQuery(sql, [name, mobile, email], (err, result) => {
+    db.query(sql, [name, mobile, email], (err, result) => {
         if (err) return res.status(500).json({ message: "Database Error" });
         if (result.affectedRows > 0) {
             res.json({ message: "Success" });
@@ -1457,7 +1545,7 @@ app.get('/user-profile', (req, res) => {
 
     const sql = "SELECT full_name as name, email_id as email, mobile_no as mobile, city_name as city, state_name as state FROM users WHERE email_id = ?";
 
-    dbQuery(sql, [email], (err, result) => {
+    db.query(sql, [email], (err, result) => {
         if (err) {
             console.error("Database Error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -1483,7 +1571,7 @@ app.post('/user-schedule-deactivation', (req, res) => {
     
     const checkColumnsSql = "SHOW COLUMNS FROM users LIKE 'status'";
     
-    dbQuery(checkColumnsSql, (checkErr, checkResult) => {
+    db.query(checkColumnsSql, (checkErr, checkResult) => {
         if (checkErr) {
             console.error("❌ Column check error:", checkErr);
             return res.status(500).json({ message: "Database error checking columns" });
@@ -1498,7 +1586,7 @@ app.post('/user-schedule-deactivation', (req, res) => {
                 ADD COLUMN deactivated_at DATETIME DEFAULT NULL
             `;
             
-            dbQuery(alterSql, (alterErr) => {
+            db.query(alterSql, (alterErr) => {
                 if (alterErr) {
                     console.error("❌ Error creating columns:", alterErr);
                     return res.status(500).json({ 
@@ -1517,7 +1605,7 @@ app.post('/user-schedule-deactivation', (req, res) => {
     function performDeactivation(email, res) {
         const sql = "UPDATE users SET status = 'Deactivated', deactivated_at = NOW() WHERE email_id = ?";
         
-        dbQuery(sql, [email], (err, result) => {
+        db.query(sql, [email], (err, result) => {
             if (err) {
                 console.error("❌ Deactivation error:", err);
                 return res.status(500).json({ 
@@ -1545,7 +1633,7 @@ app.get('/check-deactivation', (req, res) => {
     
     const checkColumnsSql = "SHOW COLUMNS FROM users LIKE 'status'";
     
-    dbQuery(checkColumnsSql, (checkErr, checkResult) => {
+    db.query(checkColumnsSql, (checkErr, checkResult) => {
         if (checkErr) {
             console.error("❌ Column check error:", checkErr);
             return res.status(500).json({ message: "Database error" });
@@ -1558,7 +1646,7 @@ app.get('/check-deactivation', (req, res) => {
         
         const sql = "SELECT status, deactivated_at FROM users WHERE email_id = ?";
         
-        dbQuery(sql, [email], (err, result) => {
+        db.query(sql, [email], (err, result) => {
             if (err) {
                 console.error("❌ Database error:", err);
                 return res.json({ status: 'Active', deactivated_at: null });
@@ -1595,7 +1683,7 @@ app.post('/raise-ticket', (req, res) => {
 
     const getUserSql = "SELECT full_name, mobile_no FROM users WHERE email_id = ?";
     
-    dbQuery(getUserSql, [user_email], (userErr, userResult) => {
+    db.query(getUserSql, [user_email], (userErr, userResult) => {
         if (userErr) {
             console.error('❌ Error fetching user:', userErr);
             return res.status(500).json({ message: 'Database error' });
@@ -1616,14 +1704,14 @@ app.post('/raise-ticket', (req, res) => {
         }
 
         const query = `
-            INSERT INTO tickets
-            (state, city, work_type, user_name, mobile_number, problem_description, user_email, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'pending') RETURNING id
+            INSERT INTO tickets 
+            (state, city, work_type, user_name, mobile_number, problem_description, user_email, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')
         `;
 
         const params = [state, city, work_type, finalUserName.trim(), finalMobileNumber, problem.trim(), user_email];
 
-        dbQuery(query, params, (err, result) => {
+        db.query(query, params, (err, result) => {
             if (err) {
                 console.error('❌ Insert error:', err);
                 return res.status(500).json({ 
@@ -1661,7 +1749,7 @@ app.post('/accept-ticket', (req, res) => {
         WHERE contact = ?
     `;
 
-    dbQuery(getWorkerSql, [worker_mobile], (workerErr, workerResult) => {
+    db.query(getWorkerSql, [worker_mobile], (workerErr, workerResult) => {
         if (workerErr) {
             console.error("❌ Error fetching worker:", workerErr);
             return res.status(500).json({ 
@@ -1679,7 +1767,7 @@ app.post('/accept-ticket', (req, res) => {
 
         const checkQuery = `SELECT id, status FROM tickets WHERE id = ?`;
         
-        dbQuery(checkQuery, [ticket_id], (checkErr, checkResults) => {
+        db.query(checkQuery, [ticket_id], (checkErr, checkResults) => {
             if (checkErr) {
                 console.error("❌ Check error:", checkErr);
                 return res.status(500).json({ 
@@ -1711,7 +1799,7 @@ app.post('/accept-ticket', (req, res) => {
                 WHERE id = ? AND status = 'pending'
             `;
 
-            dbQuery(updateQuery, [
+            db.query(updateQuery, [
                 worker.worker_name,
                 worker.contact,
                 worker.work_type,
@@ -1783,7 +1871,7 @@ app.get('/user-tickets', (req, res) => {
         ORDER BY created_at DESC
     `;
 
-    dbQuery(query, [email], (err, results) => {
+    db.query(query, [email], (err, results) => {
         if (err) {
             console.error("❌ Database error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -1818,7 +1906,7 @@ app.get('/verify-ticket', (req, res) => {
         WHERE id = ?
     `;
 
-    dbQuery(sql, [ticket_id], (err, result) => {
+    db.query(sql, [ticket_id], (err, result) => {
         if (err) {
             return res.status(500).json({ message: "Database error" });
         }
@@ -1861,7 +1949,7 @@ app.get('/pending-tickets', (req, res) => {
 
     query += ' ORDER BY created_at DESC';
 
-    dbQuery(query, params, (err, results) => {
+    db.query(query, params, (err, results) => {
         if (err) {
             console.error('❌ Query error:', err);
             return res.status(500).json({ message: 'Database error' });
@@ -1897,7 +1985,7 @@ app.get('/search-workers', (req, res) => {
         ORDER BY (latitude IS NULL), worker_name
     `;
 
-    dbQuery(sql, [city, work], (err, results) => {
+    db.query(sql, [city, work], (err, results) => {
         if (err) {
             console.error("❌ SQL ERROR:", err.sqlMessage);
             return res.status(500).json({ message: "Database Error" });
@@ -1914,7 +2002,7 @@ app.get('/search-workers', (req, res) => {
                     WHERE accepted_worker_mobile = ? AND status = 'completed' AND rating IS NOT NULL
                 `;
                 
-                dbQuery(statsSql, [worker.contact], (statErr, statResult) => {
+                db.query(statsSql, [worker.contact], (statErr, statResult) => {
                     if (!statErr && statResult.length > 0) {
                         worker.completed_jobs = statResult[0].completed_jobs || 0;
                         worker.average_rating = statResult[0].average_rating || 0;
@@ -1989,7 +2077,7 @@ app.get('/worker-location', (req, res) => {
         WHERE contact = ?
     `;
 
-    dbQuery(sql, [contact], (err, result) => {
+    db.query(sql, [contact], (err, result) => {
         if (err) {
             console.error("Database error:", err);
             return res.status(500).json({ message: "Database error" });
@@ -2076,12 +2164,12 @@ app.post('/setup-database', (req, res) => {
     let processedCount = 0;
     
     queries.forEach(query => {
-        dbQuery(query.check, (checkErr, checkResult) => {
+        db.query(query.check, (checkErr, checkResult) => {
             if (checkErr) {
                 results.push({ column: query.name, status: 'error', error: checkErr.message });
                 processedCount++;
             } else if (checkResult.length === 0) {
-                dbQuery(query.alter, (alterErr, alterResult) => {
+                db.query(query.alter, (alterErr, alterResult) => {
                     if (alterErr) {
                         results.push({ column: query.name, status: 'failed', error: alterErr.message });
                     } else {
@@ -2120,10 +2208,10 @@ setInterval(() => {
     const deleteUsersSql = `
         DELETE FROM users 
         WHERE status = 'Deactivated' 
-        AND deactivated_at <= NOW() - INTERVAL '24 hours'
+        AND deactivated_at <= NOW() - INTERVAL 24 HOUR
     `;
     
-    dbQuery(deleteUsersSql, (err, result) => {
+    db.query(deleteUsersSql, (err, result) => {
         if (err) {
             console.error("User Cleanup Error:", err);
         } else if (result.affectedRows > 0) {
@@ -2134,10 +2222,10 @@ setInterval(() => {
     const deleteWorkersSql = `
         DELETE FROM workers 
         WHERE status = 'Deactivated' 
-        AND deactivated_at <= NOW() - INTERVAL '1 hour'
+        AND deactivated_at <= NOW() - INTERVAL 1 HOUR
     `;
 
-    dbQuery(deleteWorkersSql, (err, result) => {
+    db.query(deleteWorkersSql, (err, result) => {
         if (err) {
             console.error("Worker Cleanup Error:", err);
         } else if (result.affectedRows > 0) {
@@ -2159,7 +2247,7 @@ setInterval(() => {
         WHERE reset_token_expiry < NOW()
     `;
     
-    dbQuery(cleanTokensSql, (err, result) => {
+    db.query(cleanTokensSql, (err, result) => {
         if (err) {
             console.error("Token cleanup error:", err);
         } else if (result.affectedRows > 0) {
