@@ -1325,6 +1325,17 @@ app.post("/user-login", (req, res) => {
     });
 });
 
+app.post('/check-worker-mobile', (req, res) => {
+    const { contact } = req.body;
+    if (!contact) return res.status(400).json({ message: "Mobile is required" });
+
+    db.query("SELECT contact FROM workers WHERE contact = ? AND status != 'Deactivated'", [contact], (err, result) => {
+        if (err) return res.status(500).json({ message: "Database error" });
+        if (result.length === 0) return res.status(404).json({ message: "Mobile number not registered." });
+        res.json({ message: "Mobile found" });
+    });
+});
+
 app.post('/check-user-email', (req, res) => {
     const { email } = req.body;
 

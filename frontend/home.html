@@ -1073,24 +1073,36 @@
         <div class="modal-content">
             <span class="close" onclick="closeAllModals()">&times;</span>
             <div class="modal-header"><h2 data-lang-key="verify-title">Verify Identity</h2></div>
-            <div class="form-group">
-                <label data-lang-key="label-mobile">Registered Mobile</label>
-                <input type="tel" id="w_sq_mobile" maxlength="10">
+
+            <!-- Step 1: Verify mobile -->
+            <div id="w_sq_step1">
+                <div class="form-group">
+                    <label data-lang-key="label-mobile">Registered Mobile Number</label>
+                    <input type="tel" id="w_sq_mobile" maxlength="10" oninput="document.getElementById('w_mobileError').textContent=''">
+                    <div id="w_mobileError" style="color:#e53935; font-size:0.85rem; margin-top:6px;"></div>
+                </div>
+                <button class="btn-primary" onclick="w_verifyMobileForSQ()">Verify Mobile</button>
+                <button class="btn-secondary" onclick="openWorkerForgot()" data-lang-key="btn-back">← Back</button>
             </div>
-            <div class="form-group">
-                <label data-lang-key="label-friend-name">Childhood Friend's Name</label>
-                <input type="text" id="w_sq_friend">
+
+            <!-- Step 2: Security questions (shown only after mobile verified) -->
+            <div id="w_sq_step2" style="display:none;">
+                <p style="text-align:center; color:#4caf50; margin-bottom:12px; font-size:0.9rem;">✅ Mobile verified. Answer your security questions.</p>
+                <div class="form-group">
+                    <label data-lang-key="label-friend-name">Childhood Friend's Name</label>
+                    <input type="text" id="w_sq_friend">
+                </div>
+                <div class="form-group">
+                    <label data-lang-key="label-school-name">Primary School Name</label>
+                    <input type="text" id="w_sq_school">
+                </div>
+                <div class="form-group">
+                    <label data-lang-key="label-birthplace">Birthplace</label>
+                    <input type="text" id="w_sq_birth">
+                </div>
+                <button class="btn-primary" onclick="w_verifySQ()" data-lang-key="verify-title">Verify Answers</button>
+                <button class="btn-secondary" onclick="w_backToMobileStep()">← Change Mobile</button>
             </div>
-            <div class="form-group">
-                <label data-lang-key="label-school-name">Primary School Name</label>
-                <input type="text" id="w_sq_school">
-            </div>
-            <div class="form-group">
-                <label data-lang-key="label-birthplace">Birthplace</label>
-                <input type="text" id="w_sq_birth">
-            </div>
-            <button class="btn-primary" onclick="w_verifySQ()" data-lang-key="verify-title">Verify Answers</button>
-            <button class="btn-secondary" onclick="openWorkerForgot()" data-lang-key="btn-back">← Back</button>
         </div>
     </div>
 
@@ -1211,12 +1223,25 @@
         <div class="modal-content">
             <span class="close" onclick="closeAllModals()">&times;</span>
             <div class="modal-header"><h2>Email Recovery</h2></div>
-            <div class="form-group">
-                <label>Registered Email</label>
-                <input type="email" id="u_rec_email">
+
+            <!-- Step 1: Verify email -->
+            <div id="u_email_step1">
+                <div class="form-group">
+                    <label>Registered Email</label>
+                    <input type="email" id="u_rec_email" oninput="document.getElementById('u_emailError').textContent=''">
+                    <div id="u_emailError" style="color:#e53935; font-size:0.85rem; margin-top:6px;"></div>
+                </div>
+                <button class="btn-primary" onclick="u_verifyEmailForReset()">Verify Email</button>
+                <button class="btn-secondary" onclick="openUserForgot()">← Back</button>
             </div>
-            <button class="btn-primary" onclick="u_sendResetLink()">Send Reset Link</button>
-            <button class="btn-secondary" onclick="openUserForgot()">← Back</button>
+
+            <!-- Step 2: Send link (shown only after email verified) -->
+            <div id="u_email_step2" style="display:none;">
+                <p style="text-align:center; color:#4caf50; margin-bottom:10px;">✅ Email verified!</p>
+                <p style="text-align:center; opacity:0.7; font-size:0.85rem; margin-bottom:20px;" id="u_verified_email_display"></p>
+                <button class="btn-primary" onclick="u_sendResetLink()">Send Reset Link</button>
+                <button class="btn-secondary" onclick="u_backToEmailStep1()">← Change Email</button>
+            </div>
         </div>
     </div>
 
@@ -1482,11 +1507,50 @@
         }
 
         function openWorkerSecurityQ() {
+            // Reset to step 1 each time
+            document.getElementById('w_sq_step1').style.display = 'block';
+            document.getElementById('w_sq_step2').style.display = 'none';
+            document.getElementById('w_sq_mobile').value = '';
+            document.getElementById('w_mobileError').textContent = '';
             openModal('w_securityQModal');
         }
 
         function openWorkerOTP() {
             openModal('w_otpModal');
+        }
+
+        async function w_verifyMobileForSQ() {
+            const mobile = document.getElementById('w_sq_mobile').value.trim();
+            const errorDiv = document.getElementById('w_mobileError');
+            if (!mobile || mobile.length !== 10) { errorDiv.textContent = 'Please enter a valid 10-digit mobile number.'; return; }
+
+            const btn = document.querySelector('#w_sq_step1 .btn-primary');
+            btn.textContent = 'Checking...';
+            btn.disabled = true;
+            try {
+                const res = await fetch('/check-worker-mobile', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({contact: mobile})
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('w_sq_step1').style.display = 'none';
+                    document.getElementById('w_sq_step2').style.display = 'block';
+                } else {
+                    errorDiv.textContent = '❌ ' + (data.message || 'Mobile not registered.');
+                }
+            } catch(e) {
+                errorDiv.textContent = 'Server error. Please try again.';
+            } finally {
+                btn.textContent = 'Verify Mobile';
+                btn.disabled = false;
+            }
+        }
+
+        function w_backToMobileStep() {
+            document.getElementById('w_sq_step1').style.display = 'block';
+            document.getElementById('w_sq_step2').style.display = 'none';
         }
 
         async function w_verifySQ() {
@@ -1628,6 +1692,11 @@
         }
 
         function openUserEmail() {
+            // Reset to step 1 each time
+            document.getElementById('u_email_step1').style.display = 'block';
+            document.getElementById('u_email_step2').style.display = 'none';
+            document.getElementById('u_rec_email').value = '';
+            document.getElementById('u_emailError').textContent = '';
             openModal('u_emailLinkModal');
         }
 
@@ -1673,13 +1742,44 @@
             }
         }
 
+        async function u_verifyEmailForReset() {
+            const email = document.getElementById('u_rec_email').value.trim();
+            const errorDiv = document.getElementById('u_emailError');
+            if (!email) { errorDiv.textContent = 'Please enter your email address.'; return; }
+
+            const btn = document.querySelector('#u_email_step1 .btn-primary');
+            btn.textContent = 'Checking...';
+            btn.disabled = true;
+            try {
+                const res = await fetch('/check-user-email', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email})
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('u_email_step1').style.display = 'none';
+                    document.getElementById('u_email_step2').style.display = 'block';
+                    document.getElementById('u_verified_email_display').textContent = email;
+                } else {
+                    errorDiv.textContent = '❌ ' + (data.message || 'Email not registered.');
+                }
+            } catch(e) {
+                errorDiv.textContent = 'Server error. Please try again.';
+            } finally {
+                btn.textContent = 'Verify Email';
+                btn.disabled = false;
+            }
+        }
+
+        function u_backToEmailStep1() {
+            document.getElementById('u_email_step1').style.display = 'block';
+            document.getElementById('u_email_step2').style.display = 'none';
+        }
+
         async function u_sendResetLink() {
             const email = document.getElementById('u_rec_email').value.trim();
-            if (!email) {
-                alert('Please enter your registered email address.');
-                return;
-            }
-            const btn = document.querySelector('#u_emailLinkModal .btn-primary');
+            const btn = document.querySelector('#u_email_step2 .btn-primary');
             btn.textContent = 'Sending...';
             btn.disabled = true;
             try {
