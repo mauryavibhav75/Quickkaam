@@ -46,14 +46,21 @@ db.connect((err) => {
 // In-memory OTP storage
 const otpStore = new Map();
 
-// Email configuration (Brevo SMTP - reliable on cloud servers)
+// Email configuration
 const emailTransporter = nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 587,
-    secure: false,
+    service: 'gmail',
     auth: {
-        user: process.env.BREVO_SMTP_USER,
-        pass: process.env.BREVO_SMTP_KEY
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+emailTransporter.verify((err) => {
+    if (err) {
+        console.error('❌ Gmail SMTP connection failed:', err.message);
+        console.error('   Make sure EMAIL_USER and EMAIL_PASS (App Password) are set correctly in Render.');
+    } else {
+        console.log('✅ Gmail SMTP ready');
     }
 });
 
@@ -1432,7 +1439,7 @@ app.post('/send-reset-email', async (req, res) => {
             const resetLink = `${baseUrl}/user.html?token=${resetToken}`;
 
             const mailOptions = {
-                from: `"QuickKaam" <${process.env.BREVO_SMTP_USER}>`,
+                from: `"QuickKaam" <${process.env.EMAIL_USER}>`,
                 to: email,
                 subject: 'QuickKaam - Password Reset Link',
                 html: `
@@ -2293,5 +2300,5 @@ app.listen(PORT, () => {
     console.log('🧹 Cleanup job: Every 5 minutes');
     console.log('⏰ User deactivation: 24 hours | Worker deactivation: 1 hour');
     console.log('');
-    console.log('📧 Email: Brevo SMTP (smtp-relay.brevo.com:587)');
+    console.log('📧 Email: Gmail SMTP');
 });
