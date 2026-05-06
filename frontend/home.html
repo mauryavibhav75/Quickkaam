@@ -1374,7 +1374,7 @@
             </div>
             
             <div class="social-links">
-                <a href="mailto:skillindiaa2026@gmail.com?subject=QuickKaam Inquiry&body=Hello QuickKaam Team,%0D%0A%0D%0A" class="social-icon" title="Email Us">
+                <a href="mailto:quickkaam26@gmail.com?subject=QuickKaam Inquiry&body=Hello QuickKaam Team,%0D%0A%0D%0A" class="social-icon" title="Email Us">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                         <polyline points="22,6 12,13 2,6"></polyline>
@@ -1777,5 +1777,63 @@
         });
     </script>
     <script src="translations.js"></script>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookieBanner" style="
+        display: none;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: rgba(20, 20, 20, 0.97);
+        backdrop-filter: blur(10px);
+        color: #fff;
+        padding: 18px 30px;
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+        border-top: 2px solid #ff9933;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+    ">
+        <div style="flex: 1; min-width: 250px; font-size: 14px; line-height: 1.6;">
+            🍪 <strong>We use cookies</strong> to improve your experience on QuickKaam.
+            Cookies help us remember your session, preferences, and keep you logged in securely.
+            <a href="#" onclick="return false;" style="color: #ff9933; text-decoration: underline; margin-left: 6px;">Learn more</a>
+        </div>
+        <div style="display: flex; gap: 10px; flex-shrink: 0;">
+            <button onclick="acceptCookies()" style="
+                background: #ff9933; color: #fff; border: none;
+                padding: 10px 24px; border-radius: 8px;
+                font-weight: 600; cursor: pointer; font-size: 14px;
+                transition: background 0.2s;
+            ">Accept All</button>
+            <button onclick="declineCookies()" style="
+                background: transparent; color: #ccc;
+                border: 1px solid #555; padding: 10px 20px;
+                border-radius: 8px; cursor: pointer; font-size: 14px;
+                transition: all 0.2s;
+            ">Decline</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const consent = localStorage.getItem('cookieConsent');
+            if (!consent) {
+                document.getElementById('cookieBanner').style.display = 'flex';
+            }
+        })();
+
+        function acceptCookies() {
+            localStorage.setItem('cookieConsent', 'accepted');
+            document.getElementById('cookieBanner').style.display = 'none';
+        }
+
+        function declineCookies() {
+            localStorage.setItem('cookieConsent', 'declined');
+            document.getElementById('cookieBanner').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
