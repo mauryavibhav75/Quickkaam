@@ -341,8 +341,11 @@ app.post("/register", async (req, res) => {
             friend_name, school_name, birthplace
         } = req.body;
 
-        if (!password || password.length < 6) {
-            return res.status(400).json({ message: "Password too short" });
+        if (!password || password.length < 8 ||
+            !/[A-Z]/.test(password) ||
+            !/[0-9]/.test(password) ||
+            !/[!@#$%^&*()\-_=+\[\]{};:'",.<>?\/\\|`~]/.test(password)) {
+            return res.status(400).json({ message: "Password must be at least 8 characters and include an uppercase letter, a number, and a special character." });
         }
 
         if (!friend_name || !school_name || !birthplace) {
@@ -1201,8 +1204,11 @@ app.post('/register-user', async (req, res) => {
     try {
         const { name, email, mobile, password, state, city, pet_name, teacher_name } = req.body;
 
-        if (!password || password.length < 6) {
-            return res.status(400).json({ message: "Password must be at least 6 characters long" });
+        if (!password || password.length < 8 ||
+            !/[A-Z]/.test(password) ||
+            !/[0-9]/.test(password) ||
+            !/[!@#$%^&*()\-_=+\[\]{};:'",.<>?\/\\|`~]/.test(password)) {
+            return res.status(400).json({ message: "Password must be at least 8 characters and include an uppercase letter, a number, and a special character." });
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

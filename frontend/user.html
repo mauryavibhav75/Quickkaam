@@ -545,26 +545,45 @@
     }
 
     // ===== PASSWORD VALIDATION =====
+    function checkPassReqs(value) {
+        return {
+            hasMinLength: value.length >= 8,
+            hasUpper:    /[A-Z]/.test(value),
+            hasNumber:   /[0-9]/.test(value),
+            hasSpecial:  /[!@#$%^&*()\-_=+\[\]{};:'",.<>?\/\\|`~]/.test(value)
+        };
+    }
+
     function validatePassword(input) {
         const value = input.value;
         const strengthBar = document.getElementById('passwordStrength');
         const errorMsg = document.getElementById('passwordError');
         const successMsg = document.getElementById('passwordSuccess');
-        
-        if (value.length < 6) {
+
+        if (value.length === 0) {
+            input.classList.remove('error', 'success');
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+            strengthBar.className = 'password-strength';
+            validateConfirmPassword();
+            return;
+        }
+
+        const r = checkPassReqs(value);
+        const missing = [];
+        if (!r.hasMinLength) missing.push('min 8 characters');
+        if (!r.hasUpper)     missing.push('1 uppercase letter');
+        if (!r.hasNumber)    missing.push('1 number');
+        if (!r.hasSpecial)   missing.push('1 special character');
+        const metCount = Object.values(r).filter(Boolean).length;
+
+        if (missing.length > 0) {
             input.classList.add('error');
             input.classList.remove('success');
-            errorMsg.textContent = '❌ Password must be at least 6 characters';
+            errorMsg.textContent = '❌ Need: ' + missing.join(', ');
             errorMsg.classList.add('show');
             successMsg.classList.remove('show');
-            strengthBar.className = 'password-strength weak';
-        } else if (value.length < 10) {
-            input.classList.remove('error');
-            input.classList.add('success');
-            errorMsg.classList.remove('show');
-            successMsg.textContent = '✅ Good password';
-            successMsg.classList.add('show');
-            strengthBar.className = 'password-strength medium';
+            strengthBar.className = 'password-strength ' + (metCount <= 2 ? 'weak' : 'medium');
         } else {
             input.classList.remove('error');
             input.classList.add('success');
@@ -573,7 +592,7 @@
             successMsg.classList.add('show');
             strengthBar.className = 'password-strength strong';
         }
-        
+
         validateConfirmPassword();
     }
 
@@ -611,22 +630,34 @@
         const value = input.value;
         const strengthBar = document.getElementById('newPasswordStrength');
         const errorMsg = document.getElementById('newPasswordError');
-        
-        if (value.length < 6) {
-            input.classList.add('error');
-            errorMsg.textContent = '❌ Password must be at least 6 characters';
-            errorMsg.classList.add('show');
-            strengthBar.className = 'password-strength weak';
-        } else if (value.length < 10) {
-            input.classList.remove('error');
+
+        if (value.length === 0) {
+            input.classList.remove('error', 'success');
             errorMsg.classList.remove('show');
-            strengthBar.className = 'password-strength medium';
+            strengthBar.className = 'password-strength';
+            validateConfirmNewPassword();
+            return;
+        }
+
+        const r = checkPassReqs(value);
+        const missing = [];
+        if (!r.hasMinLength) missing.push('min 8 characters');
+        if (!r.hasUpper)     missing.push('1 uppercase letter');
+        if (!r.hasNumber)    missing.push('1 number');
+        if (!r.hasSpecial)   missing.push('1 special character');
+        const metCount = Object.values(r).filter(Boolean).length;
+
+        if (missing.length > 0) {
+            input.classList.add('error');
+            errorMsg.textContent = '❌ Need: ' + missing.join(', ');
+            errorMsg.classList.add('show');
+            strengthBar.className = 'password-strength ' + (metCount <= 2 ? 'weak' : 'medium');
         } else {
             input.classList.remove('error');
             errorMsg.classList.remove('show');
             strengthBar.className = 'password-strength strong';
         }
-        
+
         validateConfirmNewPassword();
     }
 
@@ -982,8 +1013,14 @@
             return;
         }
 
-        if (password.length < 6) {
-            alert("❌ Password Error!\n\nPassword must be at least 6 characters long.");
+        const passReqs = checkPassReqs(password);
+        const passMissing = [];
+        if (!passReqs.hasMinLength) passMissing.push('at least 8 characters');
+        if (!passReqs.hasUpper)     passMissing.push('1 uppercase letter');
+        if (!passReqs.hasNumber)    passMissing.push('1 number');
+        if (!passReqs.hasSpecial)   passMissing.push('1 special character');
+        if (passMissing.length > 0) {
+            alert("❌ Password Error!\n\nPassword needs: " + passMissing.join(', ') + ".");
             document.getElementById("password").focus();
             return;
         }
