@@ -2223,6 +2223,30 @@ app.post('/setup-database', (req, res) => {
     });
 });
 
+app.get('/test-email', (req, res) => {
+    const to = req.query.to;
+    if (!to) return res.status(400).json({ message: "Add ?to=youremail@gmail.com to the URL" });
+
+    console.log(`📧 Sending test email to: ${to}`);
+    console.log(`   EMAIL_USER = ${process.env.EMAIL_USER || 'NOT SET'}`);
+    console.log(`   EMAIL_PASS = ${process.env.EMAIL_PASS ? 'SET (' + process.env.EMAIL_PASS.length + ' chars)' : 'NOT SET'}`);
+    console.log(`   APP_URL = ${process.env.APP_URL || 'NOT SET'}`);
+
+    emailTransporter.sendMail({
+        from: `"QuickKaam Test" <${process.env.EMAIL_USER}>`,
+        to: to,
+        subject: 'QuickKaam - Test Email',
+        text: 'If you received this, email is working correctly!'
+    }, (err, info) => {
+        if (err) {
+            console.error('❌ Test email FAILED:', err.message);
+            return res.status(500).json({ success: false, error: err.message });
+        }
+        console.log('✅ Test email sent! MessageId:', info.messageId);
+        res.json({ success: true, messageId: info.messageId, response: info.response });
+    });
+});
+
 app.post('/logout', (req, res) => {
     const { email } = req.body;
     console.log(`👋 User logged out: ${email || 'unknown'}`);
