@@ -48,11 +48,16 @@ const otpStore = new Map();
 
 // Email configuration
 const emailTransporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-    }
+    },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000
 });
 
 // ============================================================================
@@ -1447,13 +1452,16 @@ app.post('/send-reset-email', async (req, res) => {
                 `
             };
 
+            // Respond immediately so client doesn't hang
+            res.json({ message: "Password reset link sent to your email. Please check your inbox (and spam folder)." });
+
+            // Send email in background
             emailTransporter.sendMail(mailOptions, (mailErr) => {
                 if (mailErr) {
-                    console.error('Email send error:', mailErr);
-                    return res.status(500).json({ message: "Failed to send email. Please try security questions instead." });
+                    console.error('❌ Email send error:', mailErr.message);
+                } else {
+                    console.log(`📧 Reset email sent to ${email}`);
                 }
-                console.log(`📧 Reset email sent to ${email}`);
-                res.json({ message: "Password reset link sent to your email. Please check your inbox." });
             });
         });
     });
