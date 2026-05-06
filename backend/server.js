@@ -50,8 +50,8 @@ const otpStore = new Map();
 const emailTransporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'your-email@gmail.com',
-        pass: 'your-app-password'
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
@@ -1429,13 +1429,31 @@ app.post('/send-reset-email', async (req, res) => {
             const baseUrl = process.env.APP_URL || 'http://localhost:3000';
             const resetLink = `${baseUrl}/user.html?token=${resetToken}`;
 
-            console.log(`📧 Password reset link for ${email}:`);
-            console.log(resetLink);
-            console.log(`⏰ Token expires in 10 minutes`);
+            const mailOptions = {
+                from: `"QuickKaam" <${process.env.EMAIL_USER}>`,
+                to: email,
+                subject: 'QuickKaam - Password Reset Link',
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border: 1px solid #eee; border-radius: 10px;">
+                        <h2 style="color: #ff9933;">QuickKaam Password Reset</h2>
+                        <p>Hello,</p>
+                        <p>We received a request to reset your password. Click the button below to set a new password:</p>
+                        <a href="${resetLink}" style="display: inline-block; margin: 20px 0; padding: 12px 30px; background: #ff9933; color: #fff; text-decoration: none; border-radius: 8px; font-weight: bold;">Reset Password</a>
+                        <p>This link will expire in <strong>10 minutes</strong>.</p>
+                        <p>If you did not request this, please ignore this email.</p>
+                        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                        <p style="color: #999; font-size: 12px;">QuickKaam - Connecting Skilled Workers with Opportunities</p>
+                    </div>
+                `
+            };
 
-            res.json({ 
-                message: "Password reset link sent to your email. Please check your inbox.",
-                dev_link: resetLink
+            emailTransporter.sendMail(mailOptions, (mailErr) => {
+                if (mailErr) {
+                    console.error('Email send error:', mailErr);
+                    return res.status(500).json({ message: "Failed to send email. Please try security questions instead." });
+                }
+                console.log(`📧 Reset email sent to ${email}`);
+                res.json({ message: "Password reset link sent to your email. Please check your inbox." });
             });
         });
     });
