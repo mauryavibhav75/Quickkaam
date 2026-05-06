@@ -46,18 +46,15 @@ db.connect((err) => {
 // In-memory OTP storage
 const otpStore = new Map();
 
-// Email configuration
+// Email configuration (Brevo SMTP - reliable on cloud servers)
 const emailTransporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: 'smtp-relay.brevo.com',
     port: 587,
     secure: false,
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000
+        user: process.env.BREVO_SMTP_USER,
+        pass: process.env.BREVO_SMTP_KEY
+    }
 });
 
 // ============================================================================
@@ -1435,7 +1432,7 @@ app.post('/send-reset-email', async (req, res) => {
             const resetLink = `${baseUrl}/user.html?token=${resetToken}`;
 
             const mailOptions = {
-                from: `"QuickKaam" <${process.env.EMAIL_USER}>`,
+                from: `"QuickKaam" <${process.env.BREVO_SMTP_USER}>`,
                 to: email,
                 subject: 'QuickKaam - Password Reset Link',
                 html: `
@@ -2296,6 +2293,5 @@ app.listen(PORT, () => {
     console.log('🧹 Cleanup job: Every 5 minutes');
     console.log('⏰ User deactivation: 24 hours | Worker deactivation: 1 hour');
     console.log('');
-    console.log('⚠️  EMAIL SETUP REQUIRED FOR PRODUCTION:');
-    console.log('   Update emailTransporter credentials in server.js');
+    console.log('📧 Email: Brevo SMTP (smtp-relay.brevo.com:587)');
 });
