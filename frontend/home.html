@@ -1674,7 +1674,14 @@
         }
 
         async function u_sendResetLink() {
-            const email = document.getElementById('u_rec_email').value;
+            const email = document.getElementById('u_rec_email').value.trim();
+            if (!email) {
+                alert('Please enter your registered email address.');
+                return;
+            }
+            const btn = document.querySelector('#u_emailLinkModal .btn-primary');
+            btn.textContent = 'Sending...';
+            btn.disabled = true;
             try {
                 const res = await fetch('/send-reset-email', {
                     method: 'POST',
@@ -1683,13 +1690,16 @@
                 });
                 const data = await res.json();
                 if(res.ok) {
-                    alert('✅ ' + data.message);
+                    alert('✅ Reset link sent! Please check your email inbox (and spam folder).');
                     closeAllModals();
                 } else {
                     alert('Error: ' + data.message);
                 }
             } catch(e) {
-                alert('Server Error');
+                alert('Server error. Please try again.');
+            } finally {
+                btn.textContent = 'Send Reset Link';
+                btn.disabled = false;
             }
         }
 
